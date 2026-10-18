@@ -1,0 +1,250 @@
+TH,Amt,Kategorie,Massnahme,Kuerzung_5_Prozent_Freiwillig,Bisher_2026,Aenderung_2026,Neu_2026
+01,TH 01 - Referat des Oberbürgermeisters,Aufwendungen für Sach- und Dienstleistungen,Projektmittel Markenkommunikation,False,52000.0,-30000.0,22000.0
+01,TH 01 - Referat des Oberbürgermeisters,Aufwendungen für Sach- und Dienstleistungen,Aufwendungen für EDV/Open Slides,False,40000.0,-15000.0,25000.0
+01,TH 01 - Referat des Oberbürgermeisters,Aufwendungen für Sach- und Dienstleistungen,Projektmittel Innovation,False,50000.0,-5000.0,45000.0
+01,TH 01 - Referat des Oberbürgermeisters,Transferaufwendungen,Stadtteilbudgets,False,200000.0,-50000.0,150000.0
+01,TH 01 - Referat des Oberbürgermeisters,Transferaufwendungen,Junge Feierkultur,False,120000.0,-60000.0,60000.0
+01,TH 01 - Referat des Oberbürgermeisters,Transferaufwendungen,Vereinsunterstützung alternative Raumnutzung,False,24000.0,-24000.0,0.0
+01,TH 01 - Referat des Oberbürgermeisters,Transferaufwendungen,Stadtjugendring,True,138128.0,-6906.0,131222.0
+01,TH 01 - Referat des Oberbürgermeisters,Transferaufwendungen,Stadtteilvereine,True,110000.0,-5500.0,104500.0
+01,TH 01 - Referat des Oberbürgermeisters,Transferaufwendungen,Brauchtum,True,56000.0,-2800.0,53200.0
+01,TH 01 - Referat des Oberbürgermeisters,Transferaufwendungen,Internationale Partnerschaftsprojekte,True,15000.0,-750.0,14250.0
+01,TH 01 - Referat des Oberbürgermeisters,Transferaufwendungen,FreiwilligenAgentur,False,94557.0,-4728.0,89829.0
+01,TH 01 - Referat des Oberbürgermeisters,Transferaufwendungen,Deutsch-Amerikanischer Frauenclub (Pfennigbasar),True,2800.0,-140.0,2660.0
+01,TH 01 - Referat des Oberbürgermeisters,Transferaufwendungen,Förderprogramm Städtepartnerschaften,True,15000.0,-750.0,14250.0
+01,TH 01 - Referat des Oberbürgermeisters,Transferaufwendungen,Verkehrsverein Ziegelhausen,True,19000.0,-950.0,18050.0
+01,TH 01 - Referat des Oberbürgermeisters,Transferaufwendungen,Zukunft Metropolregion Rhein-Neckar,True,13300.0,-665.0,12635.0
+01,TH 01 - Referat des Oberbürgermeisters,Sonstige ordentliche Aufwendungen,Geschäftsaufwendungen der Fraktionen,False,735300.0,-36765.0,698535.0
+01,TH 01 - Referat des Oberbürgermeisters,Sonstige ordentliche Aufwendungen,Verpflegung Gemeinderat,False,30000.0,-10000.0,20000.0
+01,TH 01 - Referat des Oberbürgermeisters,Investitionen,Büro-/EDV-Ausstattung,False,15700.0,-10500.0,5200.0
+11,TH 11 - Personal- und Organisationsamt,Personalaufwendungen,Recruiting,False,789500.0,-93000.0,696500.0
+11,TH 11 - Personal- und Organisationsamt,Aufwendungen für Sach- und Dienstleistungen,Sachmittelbudget,False,63500.0,-60000.0,3500.0
+11,TH 11 - Personal- und Organisationsamt,Aufwendungen für Sach- und Dienstleistungen,Zuschuss Job-Ticket,False,850000.0,-50000.0,800000.0
+12,TH 12 - Amt für Stadtentwicklung und Statistik,Aufwendungen für Sach- und Dienstleistungen,Besondere Verwaltungs- und Betriebsaufwendungen,False,900000.0,-35000.0,865000.0
+12,TH 12 - Amt für Stadtentwicklung und Statistik,Investitionen,Büro- / EDV-Ausstattung,False,29600.0,-2000.0,27600.0
+12,TH 12 - Amt für Stadtentwicklung und Statistik,Aufwendungen für Sach- und Dienstleistungen,Besondere Aufwendungen für Beschäftigte,False,1500.0,-500.0,1000.0
+12,TH 12 - Amt für Stadtentwicklung und Statistik,Aufwendungen für Sach- und Dienstleistungen,Besondere Verwaltungs- und Betriebsaufwendungen,False,108000.0,-15500.0,92500.0
+12,TH 12 - Amt für Stadtentwicklung und Statistik,Investitionen,Büro- / EDV-Ausstattung,False,5000.0,-1500.0,3500.0
+14,TH 14 - Rechnungsprüfungsamt,Aufwendungen für Sach- und Dienstleistungen,Bes. Aufwendungen für Beschäftigte,False,7000.0,-2000.0,5000.0
+14,TH 14 - Rechnungsprüfungsamt,Investitionen,Büro-/EDV-Ausstattung,False,4000.0,-2000.0,2000.0
+15,TH 15 - Bürger- und Ordnungsamt,Öffentlich-rechtliche Entgelte,Verwaltungsgebühren,False,3250000.0,307500.0,3557500.0
+15,TH 15 - Bürger- und Ordnungsamt,Öffentlich-rechtliche Entgelte,Gebühren Melde-/Ausweiswesen,False,1600000.0,33750.0,1633750.0
+15,TH 15 - Bürger- und Ordnungsamt,Öffentlich-rechtliche Entgelte,Benutzungsgebühren,False,850000.0,18000.0,868000.0
+15,TH 15 - Bürger- und Ordnungsamt,Aufwendungen für Sach- und Dienstleistungen,Mieten und Pachten,False,597000.0,-20000.0,577000.0
+15,TH 15 - Bürger- und Ordnungsamt,Aufwendungen für Sach- und Dienstleistungen,Besondere Verwaltungs- und Betriebsaufwendungen,False,2143800.0,-121000.0,2022800.0
+15,TH 15 - Bürger- und Ordnungsamt,Transferaufwendungen,Zuschuss Volksfeste,False,40000.0,-10000.0,30000.0
+16,TH 16 - Amt für Chancengleichheit,Privatrechtliche Leistungsentgelte,Erträge aus Verkauf,False,100000.0,-40000.0,60000.0
+16,TH 16 - Amt für Chancengleichheit,Aufwendungen für Sach- und Dienstleistungen,Mieten und Pachten,False,27500.0,-10000.0,17500.0
+16,TH 16 - Amt für Chancengleichheit,Aufwendungen für Sach- und Dienstleistungen,Besondere Verwaltungs- und Betriebsaufwendungen,False,198900.0,-17500.0,181400.0
+16,TH 16 - Amt für Chancengleichheit,Aufwendungen für Sach- und Dienstleistungen,Sachmittel Runder Tische gegen Rassismus,False,30000.0,-10000.0,20000.0
+16,TH 16 - Amt für Chancengleichheit,Aufwendungen für Sach- und Dienstleistungen,Sachmittel Interreligiöser Dialog,False,10000.0,-5000.0,5000.0
+16,TH 16 - Amt für Chancengleichheit,Aufwendungen für Sach- und Dienstleistungen,Sachmittel LSBTIQ+,False,46250.0,-17500.0,28750.0
+16,TH 16 - Amt für Chancengleichheit,Aufwendungen für Sach- und Dienstleistungen,Sachmittel Absicherung Chancengleichheit,False,0.0,15000.0,15000.0
+16,TH 16 - Amt für Chancengleichheit,Transferaufwendungen,Queer Festival (Queer Play e.V.),False,114050.0,-11400.0,102650.0
+16,TH 16 - Amt für Chancengleichheit,Transferaufwendungen,Queer Space,False,20625.0,-2060.0,18565.0
+16,TH 16 - Amt für Chancengleichheit,Transferaufwendungen,Fonds Chancengleichheit,False,30000.0,-20000.0,10000.0
+16,TH 16 - Amt für Chancengleichheit,Transferaufwendungen,Jüdisch-muslimische Kulturtage,False,35000.0,-10000.0,25000.0
+16,TH 16 - Amt für Chancengleichheit,Transferaufwendungen,Gewaltambulanz Uniklinik Heidelberg,True,50000.0,-50000.0,0.0
+16,TH 16 - Amt für Chancengleichheit,Transferaufwendungen,Gewaltschutz sichern,False,0.0,55000.0,55000.0
+16,TH 16 - Amt für Chancengleichheit,Transferaufwendungen,Workshops Wiedereinstieg in den Beruf,False,11038.0,-5000.0,6038.0
+16,TH 16 - Amt für Chancengleichheit,Transferaufwendungen,Azubi-Fonds,True,50000.0,-25000.0,25000.0
+16,TH 16 - Amt für Chancengleichheit,Sonstige ordentliche Aufwendungen,Erstattungen an die Taxizentrale für Frauennachttaxifahrten,False,240000.0,-120000.0,120000.0
+16,TH 16 - Amt für Chancengleichheit,Öffentlich-rechtliche Entgelte,Benutzungsgebühren u.a.,False,12500.0,10000.0,22500.0
+16,TH 16 - Amt für Chancengleichheit,Aufwendungen für Sach- und Dienstleistungen,Besondere Verwaltungs- und Betriebsaufwendungen,False,107000.0,-5000.0,102000.0
+16,TH 16 - Amt für Chancengleichheit,Aufwendungen für Sach- und Dienstleistungen,Integrationsprojekte in Eigenregie und Kooperationsprojekte,False,37000.0,-5000.0,32000.0
+17,TH 17 - Amt für Digitales und Informationsverarbeitung,Aufwendungen für Sach- und Dienstleistungen,"Mietaufwendungen, Nebenkosten",False,11000.0,-6900.0,4100.0
+17,TH 17 - Amt für Digitales und Informationsverarbeitung,Aufwendungen für Sach- und Dienstleistungen,Aufwendungen für EDV,False,1508500.0,-125000.0,1383500.0
+17,TH 17 - Amt für Digitales und Informationsverarbeitung,Sonstige ordentliche Aufwendungen,"Zentralansatz Umzüge, Transporte, Datenvernichtung",False,100000.0,-10000.0,90000.0
+17,TH 17 - Amt für Digitales und Informationsverarbeitung,Investitionen,2.985.100 -368.000 2.617.100,False,0.0,0.0,0.0
+17,TH 17 - Amt für Digitales und Informationsverarbeitung,Investitionen,PC-Pool (Clientsysteme),False,216000.0,-100000.0,116000.0
+17,TH 17 - Amt für Digitales und Informationsverarbeitung,Investitionen,200.000 -100.000 100.000,False,0.0,0.0,0.0
+20,TH 20 - Kämmereiamt,Sonstige ordentliche Erträge,"Konzessionsabgabe (Strom, Gas, Wasser, Fernwärme)",False,9756000.0,400000.0,10156000.0
+20,TH 20 - Kämmereiamt,Transferaufwendungen,Zuschuss an die Theater- und Orchesterstiftung,False,500000.0,-100000.0,400000.0
+20,TH 20 - Kämmereiamt,Transferaufwendungen,laufenden Jahres für den Eigenbetrieb Städtische Beteiligungen,False,38166530.0,-1166250.0,37000280.0
+20,TH 20 - Kämmereiamt,Transferaufwendungen,laufenden Jahres für den Eigenbetrieb Theater und Orchester,False,30234400.0,-750000.0,29484400.0
+20,TH 20 - Kämmereiamt,Investitionen,Stadtwerke Heidelberg GmbH,False,14869000.0,-169000.0,14700000.0
+20,TH 20 - Kämmereiamt,Investitionen,Hausbesitz mbH,False,1000000.0,-1000000.0,0.0
+23,TH 23 - Amt für Liegenschaften,"Zuweisungen und Zuwendungen, Umlagen",Wohnraum,False,0.0,309000.0,309000.0
+23,TH 23 - Amt für Liegenschaften,Privatrechtliche Leistungsentgelte,Mieten und Pachten,False,7000000.0,300000.0,7300000.0
+23,TH 23 - Amt für Liegenschaften,Aufwendungen für Sach- und Dienstleistungen,Besondere Verwaltungs- und Betriebsaufwendungen,False,118500.0,-50000.0,68500.0
+23,TH 23 - Amt für Liegenschaften,Investitionen,Auszahlungen für Grunderwerb,False,5965000.0,-3000000.0,2965000.0
+23,TH 23 - Amt für Liegenschaften,Investitionen,Verlegung Karlstorbahnhof,False,340000.0,1074000.0,1414000.0
+23,TH 23 - Amt für Liegenschaften,Investitionen,Neubau Kita Harbigweg,False,0.0,151000.0,151000.0
+23,TH 23 - Amt für Liegenschaften,Sonstige ordentliche Aufwendungen,Rechts- und Beratungskosten,False,1100000.0,-300000.0,800000.0
+30,TH 30 - Rechtsamt,Aufwendungen für Sach- und Dienstleistungen,Aufwendungen für EDV (Lizenzen),False,15000.0,-1500.0,13500.0
+31,"TH 31 - Amt für Umweltschutz, Gewerbeaufsicht und Energie",Investitionen,Starkregenrisikomanagement 100.000 - 100.000 0,False,0.0,0.0,0.0
+31,"TH 31 - Amt für Umweltschutz, Gewerbeaufsicht und Energie",Investitionen,„Umweltfreundlich mobil“ 200.000 - 200.000 0,False,0.0,0.0,0.0
+34,TH 34 - Standesamt,Öffentlich-rechtliche Entgelte,Verwaltungsgebühren,False,700000.0,18000.0,718000.0
+37,TH 37 - Feuerwehr,Investitionen,Büro-/ EDV-Ausstattung 148.600 - 45.600 103.000,False,0.0,0.0,0.0
+37,TH 37 - Feuerwehr,Investitionen,Betriebsgeräte,False,211000.0,3100.0,214100.0
+37,TH 37 - Feuerwehr,Investitionen,Fahrzeuge 2.224.000 - 107.500 2.116.500,False,0.0,400000.0,400000.0
+37,TH 37 - Feuerwehr,Investitionen,Büro-/ EDV-Ausstattung 121.100 - 40.600 80.500,False,0.0,0.0,0.0
+37,TH 37 - Feuerwehr,Investitionen,Betriebsgeräte 201.000 - 6.900 194.100,False,0.0,0.0,0.0
+37,TH 37 - Feuerwehr,Investitionen,Fahrzeuge 355.000 - 107.500 247.500,False,0.0,400000.0,400000.0
+37,TH 37 - Feuerwehr,Investitionen,Büro-/ EDV-Ausstattung 27.500 - 5.000 22.500,False,0.0,0.0,0.0
+37,TH 37 - Feuerwehr,Investitionen,Betriebsgeräte,False,10000.0,10000.0,20000.0
+37,TH 37 - Feuerwehr,Investitionen,Fahrzeuge,False,1869000.0,0.0,1869000.0
+37,TH 37 - Feuerwehr,Investitionen,8.37112360: Zuschuss Erweiterung Fahrzeughalle,False,0.0,540000.0,540000.0
+37,TH 37 - Feuerwehr,Investitionen,Grunderneuerung,False,0.0,750000.0,750000.0
+37,TH 37 - Feuerwehr,Investitionen,zeughalle 900.000 - 490.000 410.000,False,0.0,0.0,0.0
+40,TH 40 - Amt für Schule und Bildung,"Zuweisungen und Zuwendungen, Umlagen",Sachkostenbeiträge,False,16500000.0,600000.0,17100000.0
+40,TH 40 - Amt für Schule und Bildung,"Zuweisungen und Zuwendungen, Umlagen","Zuschüsse für Verlässliche Grundschule, Nachmittagsbetreuung",False,1997100.0,130000.0,2127100.0
+40,TH 40 - Amt für Schule und Bildung,Aufwendungen für Sach- und Dienstleistungen,Bewirtschaftung Grundstücke/ Mieten,False,11366000.0,-200000.0,11166000.0
+40,TH 40 - Amt für Schule und Bildung,Aufwendungen für Sach- und Dienstleistungen,Kommunale Betreuungsangebote und Mittagstisch am,False,18341400.0,-500000.0,17841400.0
+40,TH 40 - Amt für Schule und Bildung,Aufwendungen für Sach- und Dienstleistungen,Projektmittel Regionales Bildungsbüro,False,157500.0,-16450.0,141050.0
+40,TH 40 - Amt für Schule und Bildung,Transferaufwendungen,Zuschüsse an die Jugendagentur Heidelberg eG,False,129400.0,-23250.0,106150.0
+40,TH 40 - Amt für Schule und Bildung,Transferaufwendungen,• Projektförderung („Heidelberger Übergangsmanage-,False,55800.0,-23250.0,32550.0
+40,TH 40 - Amt für Schule und Bildung,Transferaufwendungen,• Institutionelle Förderung,False,73600.0,0.0,73600.0
+40,TH 40 - Amt für Schule und Bildung,Transferaufwendungen,Zuschüsse an Privatschulen,False,379500.0,-38000.0,341500.0
+40,TH 40 - Amt für Schule und Bildung,Investitionen,Schulhöfe:,False,265000.0,0.0,265000.0
+40,TH 40 - Amt für Schule und Bildung,Investitionen,Zentralansatz Schulen:,False,1000000.0,-1000000.0,0.0
+40,TH 40 - Amt für Schule und Bildung,Investitionen,Mönchhofschule:,False,600000.0,-200000.0,400000.0
+40,TH 40 - Amt für Schule und Bildung,Investitionen,Wilckensschule:,False,0.0,300000.0,300000.0
+40,TH 40 - Amt für Schule und Bildung,Investitionen,Albert-Schweitzer-Schule:,False,300000.0,-100000.0,200000.0
+40,TH 40 - Amt für Schule und Bildung,Investitionen,Hölderlin-Gymnasium:,False,0.0,290000.0,290000.0
+40,TH 40 - Amt für Schule und Bildung,Investitionen,Geschwister-Scholl-Schule:,False,1216000.0,584000.0,1800000.0
+40,TH 40 - Amt für Schule und Bildung,Investitionen,Waldparkschule:,False,0.0,365000.0,365000.0
+40,TH 40 - Amt für Schule und Bildung,Investitionen,Marie-Marcks-Schule:,False,0.0,200000.0,200000.0
+40,TH 40 - Amt für Schule und Bildung,Investitionen,Schulcampus Mitte,False,1251000.0,649000.0,1900000.0
+40,TH 40 - Amt für Schule und Bildung,Investitionen,"Wilckensschule: Erneuerung Beleuchtung, Elektro",False,50000.0,150000.0,200000.0
+40,TH 40 - Amt für Schule und Bildung,Investitionen,Kurfürst-Friedrich-Gymnasium: Fenstersanierung,False,212000.0,200000.0,412000.0
+40,TH 40 - Amt für Schule und Bildung,Investitionen,Waldparkschule: Verbesserung Essenssituation/Brandschutz,False,100000.0,81000.0,181000.0
+40,TH 40 - Amt für Schule und Bildung,Investitionen,"Marie-Marcks-Schule: Erneuerung Beleuchtung, Elektro",False,0.0,24000.0,24000.0
+40,TH 40 - Amt für Schule und Bildung,Investitionen,Geschwister-Scholl-Schule: Ersatzneubau Sporthalle,False,35000.0,-35000.0,0.0
+40,TH 40 - Amt für Schule und Bildung,Investitionen,Mönchhofschule: Verbesserung der Betreuungs- und,False,1000000.0,1712000.0,2712000.0
+40,TH 40 - Amt für Schule und Bildung,Investitionen,Albert-Schweitzer-Schule: Verbesserung der Betreuungssitua-,False,470000.0,770000.0,1240000.0
+41,TH 41 - Kulturamt,Aufwendungen für Sach- und Dienstleistungen,Eigene Projekte/ Veranstaltungen/ Publikationen,False,52500.0,-10000.0,42500.0
+41,TH 41 - Kulturamt,Aufwendungen für Sach- und Dienstleistungen,UNESCO City of Literature,False,152100.0,-3000.0,149100.0
+41,TH 41 - Kulturamt,Aufwendungen für Sach- und Dienstleistungen,Europäische Kulturhauptstadt,False,65000.0,-20000.0,45000.0
+41,TH 41 - Kulturamt,Transferaufwendungen,Maßnahmenpaket Kultur,False,250000.0,-50000.0,200000.0
+41,TH 41 - Kulturamt,Transferaufwendungen,Innovationsfonds/ KulturLabHD,False,120000.0,-40000.0,80000.0
+41,TH 41 - Kulturamt,Transferaufwendungen,Förderung inklusiver Kulturveranstaltungen,False,35000.0,-10000.0,25000.0
+41,TH 41 - Kulturamt,Transferaufwendungen,Klangforum e. V.,False,191546.0,-9228.0,182318.0
+41,TH 41 - Kulturamt,Transferaufwendungen,Festival Enjoy Jazz,False,262656.0,-12656.0,250000.0
+41,TH 41 - Kulturamt,Transferaufwendungen,Kunstverein,False,405765.0,-12049.0,393716.0
+41,TH 41 - Kulturamt,Transferaufwendungen,Metropolink,False,177000.0,-20000.0,157000.0
+41,TH 41 - Kulturamt,Transferaufwendungen,Zimmertheater,False,270430.0,-13030.0,257400.0
+41,TH 41 - Kulturamt,Transferaufwendungen,UnterwegsTheater (inkl. Choreographisches Centrum),False,427500.0,-50000.0,377500.0
+41,TH 41 - Kulturamt,Transferaufwendungen,Medienforum e. V.,False,169834.0,-8183.0,161651.0
+41,TH 41 - Kulturamt,Transferaufwendungen,Schurman Gesellschaft / DAI,False,893891.0,-34733.0,859158.0
+41,TH 41 - Kulturamt,Transferaufwendungen,Kulturhaus Karlstorbahnhof,False,1392513.0,-55052.0,1337461.0
+41,TH 41 - Kulturamt,Transferaufwendungen,Förderung soziokultureller Arbeit (Kulturfenster),False,70179.0,-3380.0,66799.0
+45,TH 45 - Stadtbücherei,Öffentlich-rechtliche Entgelte,Benutzungsgebühren,False,226500.0,23000.0,249500.0
+46,TH 46 - Musik- und Singschule,Öffentlich-rechtliche Entgelte,Benutzungsgebühren,False,1813000.0,90000.0,1903000.0
+46,TH 46 - Musik- und Singschule,Aufwendungen für Sach- und Dienstleistungen,Bes. Verwaltungs- und Betriebsaufwendungen,False,43000.0,-8500.0,34500.0
+46,TH 46 - Musik- und Singschule,Investitionen,Büro-/EDV-Ausstattung,False,800.0,0.0,800.0
+46,TH 46 - Musik- und Singschule,Investitionen,Schulausstattung,False,17800.0,-9300.0,8500.0
+47,TH 47 - Stadtarchiv,Aufwendungen für Sach- und Dienstleistungen,Bes. Verwaltungs- und Betriebsaufwendungen,False,24700.0,-2000.0,22700.0
+50,TH 50 - Amt für Soziales und Senioren,"Zuweisungen und Zuwendungen, Umlagen",und Beratungszentren,False,0.0,1765000.0,1765000.0
+50,TH 50 - Amt für Soziales und Senioren,Kostenerstattungen und Kostenumlagen,Erstattungen vom Land für BTHG-bedingte Mehraufwendungen,False,0.0,2000000.0,2000000.0
+50,TH 50 - Amt für Soziales und Senioren,Aufwendungen für Sach- und Dienstleistungen,Seniorenarbeit,False,92350.0,-10500.0,81850.0
+50,TH 50 - Amt für Soziales und Senioren,Aufwendungen für Sach- und Dienstleistungen,Behindertenbeirat,False,75000.0,-10000.0,65000.0
+50,TH 50 - Amt für Soziales und Senioren,Transferaufwendungen,Soziale Leistungen außerhalb von Einrichtungen,False,72341000.0,-3385000.0,68956000.0
+50,TH 50 - Amt für Soziales und Senioren,Transferaufwendungen,Zuschuss an Krebsberatung,False,5000.0,-5000.0,0.0
+50,TH 50 - Amt für Soziales und Senioren,Transferaufwendungen,Zuschuss an Verbraucherberatung,False,11500.0,-11500.0,0.0
+50,TH 50 - Amt für Soziales und Senioren,Transferaufwendungen,Zuschuss an Behandlungsinitiative Opferschutz,False,9800.0,-9800.0,0.0
+50,TH 50 - Amt für Soziales und Senioren,Transferaufwendungen,Zuschuss Maßnahmenpaket Soziale Infrastruktur,False,550000.0,-350000.0,200000.0
+50,TH 50 - Amt für Soziales und Senioren,Transferaufwendungen,Zuschuss für Seniorenzentren freier Träger,False,2150000.0,-350000.0,1800000.0
+50,TH 50 - Amt für Soziales und Senioren,"Zuweisungen und Zuwendungen, Umlagen",Bundesbeteiligung Kosten der Unterkunft,False,17500000.0,-500000.0,17000000.0
+50,TH 50 - Amt für Soziales und Senioren,Sonstige ordentliche Aufwendungen,Heizung,False,24200000.0,-1175000.0,23025000.0
+51,TH 51 - Kinder- und Jugendamt,"Zuweisungen und Zuwendungen, Umlagen",tungen und in Kindertagespflege,False,49361000.0,-1500000.0,47861000.0
+51,TH 51 - Kinder- und Jugendamt,"Zuweisungen und Zuwendungen, Umlagen",und Beratungszentren,False,300000.0,1270000.0,1570000.0
+51,TH 51 - Kinder- und Jugendamt,Öffentlich-rechtliche Entgelte,Entgelte für Kitabetreuung,False,4575000.0,36000.0,4611000.0
+51,TH 51 - Kinder- und Jugendamt,Öffentlich-rechtliche Entgelte,Kostenbeiträge für Kindertagespflege,False,1224000.0,-224000.0,1000000.0
+51,TH 51 - Kinder- und Jugendamt,Transferaufwendungen,Zahlungen an Kindertagespflegepersonen,False,6790000.0,-690000.0,6100000.0
+51,TH 51 - Kinder- und Jugendamt,Transferaufwendungen,einrichtungen,False,65987000.0,-2650000.0,63337000.0
+51,TH 51 - Kinder- und Jugendamt,Transferaufwendungen,Zuschüsse an Jugendzentren,False,2536000.0,-93400.0,2442600.0
+51,TH 51 - Kinder- und Jugendamt,Transferaufwendungen,Zuschüsse für Schulsozialarbeit,False,2593000.0,150000.0,2743000.0
+51,TH 51 - Kinder- und Jugendamt,Transferaufwendungen,Zuschuss für den Begleiteten Umgang,False,42500.0,4400.0,46900.0
+51,TH 51 - Kinder- und Jugendamt,Transferaufwendungen,Zuschuss für Familienpaten,False,45000.0,4600.0,49600.0
+51,TH 51 - Kinder- und Jugendamt,Transferaufwendungen,Zuschuss für Erziehungsberatungsstellen,False,1015000.0,95600.0,1110600.0
+51,TH 51 - Kinder- und Jugendamt,Transferaufwendungen,Zuschuss für „Frühe Hilfen“,False,254000.0,26200.0,280200.0
+51,TH 51 - Kinder- und Jugendamt,Investitionen,Neubau,False,0.0,200000.0,200000.0
+51,TH 51 - Kinder- und Jugendamt,Investitionen,Haus der Jugend: Neubau,False,0.0,290000.0,290000.0
+51,TH 51 - Kinder- und Jugendamt,Investitionen,Energetische Sanierungen,False,30900.0,-30900.0,0.0
+52,TH 52 - Amt für Sport und Gesundheitsförderung,Transferaufwendungen,Sportförderungsprogramm,False,764000.0,-19100.0,744900.0
+52,TH 52 - Amt für Sport und Gesundheitsförderung,Transferaufwendungen,Zuschuss an den Sportkreis,False,236000.0,-5900.0,230100.0
+52,TH 52 - Amt für Sport und Gesundheitsförderung,Sonstige ordentliche Aufwendungen,"Honorarkräfte, Leiharbeitskräfte",False,65000.0,-62000.0,3000.0
+52,TH 52 - Amt für Sport und Gesundheitsförderung,Investitionen,Investitionen,False,200000.0,-5000.0,195000.0
+61,TH 61 - Stadtplanungsamt,Sonstige ordentliche Aufwendungen,Rechts- und Beratungskosten,False,380100.0,-40000.0,340100.0
+61,TH 61 - Stadtplanungsamt,Investitionen,Büro- / EDV-Ausstattung,False,36000.0,-6000.0,30000.0
+61,TH 61 - Stadtplanungsamt,Investitionen,Stadt an den Fluss,False,0.0,210000.0,210000.0
+61,TH 61 - Stadtplanungsamt,Sonstige ordentliche Aufwendungen,Geschäftsaufwendungen,False,5000.0,-500.0,4500.0
+61,TH 61 - Stadtplanungsamt,Investitionen,Büro-/ EDV-Ausstattung,False,1500.0,-150.0,1350.0
+62,TH 62 - Vermessungsamt,Aufwendungen für Sach- und Dienstleistungen,Aufwendungen für EDV,False,288200.0,-85000.0,203200.0
+62,TH 62 - Vermessungsamt,Investitionen,Betriebsgeräte,False,35000.0,-35000.0,0.0
+63,TH 63 - Amt für Baurecht und Denkmalschutz,Investitionen,haltiges Wassermanagement,False,1000000.0,250000.0,1250000.0
+65,TH 65 - Hochbauamt,Aufwendungen für Sach- und Dienstleistungen,Gebäudeunterhaltung,False,1152900.0,-110000.0,1042900.0
+65,TH 65 - Hochbauamt,Aufwendungen für Sach- und Dienstleistungen,Mieten und Pachten,False,4255400.0,-25000.0,4230400.0
+65,TH 65 - Hochbauamt,Investitionen,hof,False,1908000.0,1000000.0,2908000.0
+65,TH 65 - Hochbauamt,Investitionen,Neuer Sitzungssaal,False,35000.0,-12400.0,22600.0
+66,TH 66 - Tiefbauamt mit Regiebetrieb Straßenunterhaltung,Aufwendungen für Sach- und Dienstleistungen,Unterhaltung sonst. unbewegliches Vermögen,False,3000000.0,-195000.0,2805000.0
+66,TH 66 - Tiefbauamt mit Regiebetrieb Straßenunterhaltung,Aufwendungen für Sach- und Dienstleistungen,Straßenbeleuchtungsvertrag SWH,False,5000000.0,-60000.0,4940000.0
+66,TH 66 - Tiefbauamt mit Regiebetrieb Straßenunterhaltung,Investitionen,"Czernyring, Schere Ost, Zuschuss",False,700000.0,-700000.0,0.0
+66,TH 66 - Tiefbauamt mit Regiebetrieb Straßenunterhaltung,Investitionen,"Dossenheimer Landstraße, Zuschuss",False,1000000.0,-1000000.0,0.0
+66,TH 66 - Tiefbauamt mit Regiebetrieb Straßenunterhaltung,Investitionen,"Valeriewegsteg, Zuschuss",False,200000.0,-85000.0,115000.0
+66,TH 66 - Tiefbauamt mit Regiebetrieb Straßenunterhaltung,Investitionen,Fahrzeuge,False,64000.0,0.0,64000.0
+66,TH 66 - Tiefbauamt mit Regiebetrieb Straßenunterhaltung,Investitionen,Programm,False,4000000.0,0.0,4000000.0
+66,TH 66 - Tiefbauamt mit Regiebetrieb Straßenunterhaltung,Investitionen,Fachplanungen,False,300000.0,-50000.0,250000.0
+66,TH 66 - Tiefbauamt mit Regiebetrieb Straßenunterhaltung,Investitionen,In der Neckarhelle,False,700000.0,-600000.0,100000.0
+66,TH 66 - Tiefbauamt mit Regiebetrieb Straßenunterhaltung,Investitionen,"Czernyring, Schere Ost",False,1420000.0,-420000.0,1000000.0
+66,TH 66 - Tiefbauamt mit Regiebetrieb Straßenunterhaltung,Investitionen,Ingenieurbauwerke,False,1000000.0,0.0,1000000.0
+66,TH 66 - Tiefbauamt mit Regiebetrieb Straßenunterhaltung,Investitionen,straße,False,600000.0,300000.0,900000.0
+66,TH 66 - Tiefbauamt mit Regiebetrieb Straßenunterhaltung,Investitionen,Valeriewegsteg,False,0.0,100000.0,100000.0
+66,TH 66 - Tiefbauamt mit Regiebetrieb Straßenunterhaltung,Investitionen,Ziegelhäuser Brücke,False,500000.0,0.0,500000.0
+66,TH 66 - Tiefbauamt mit Regiebetrieb Straßenunterhaltung,Investitionen,den Neckar,False,1000000.0,-200000.0,800000.0
+67,TH 67 - Landschafts- und Forstamt,Investitionen,OASIS / Stadtbegrünung 480.000 - 268.000 212.000,False,0.0,0.0,0.0
+67,TH 67 - Landschafts- und Forstamt,Investitionen,biet 100.000 - 100.000 0,False,0.0,0.0,0.0
+67,TH 67 - Landschafts- und Forstamt,Investitionen,Trinkwasserbrunnen 145.000 - 45.000 100.000,False,0.0,0.0,0.0
+67,TH 67 - Landschafts- und Forstamt,Investitionen,Montpellierplatz 500.000 - 360.000 140.000,False,0.0,0.0,0.0
+67,TH 67 - Landschafts- und Forstamt,Investitionen,Fritz-Bauer-Platz,False,200000.0,0.0,200000.0
+67,TH 67 - Landschafts- und Forstamt,Investitionen,Spielplätze im Stadtgebiet 700.000 - 220.000 480.000,False,0.0,0.0,0.0
+67,TH 67 - Forst,Privatrechtliche Leistungsentgelte,Holzverkauf,False,1450000.0,200000.0,1650000.0
+67,TH 67 - Forst,Aufwendungen für Sach- und Dienstleistungen,Arbeitsvergabe für Holzaufarbeitung,False,600000.0,100000.0,700000.0
+67,TH 67 - Forst,Investitionen,Calisthenicsanlage 150.000 - 150.000 0,False,0.0,0.0,0.0
+70,"TH 70 - Abfallwirtschaft, Stadtreinigung und Zentralwerkstätten",Öffentlich-rechtliche Entgelte,Gehwegreinigungsgebühren,False,1290000.0,82000.0,1372000.0
+70,"TH 70 - Abfallwirtschaft, Stadtreinigung und Zentralwerkstätten",Aufwendungen für Sach- und Dienstleistungen,Betriebsstoffe Fahrzeuge,False,874210.0,-40000.0,834210.0
+70,"TH 70 - Abfallwirtschaft, Stadtreinigung und Zentralwerkstätten",Aufwendungen für Sach- und Dienstleistungen,Arbeitsvergabe,False,1937000.0,-80000.0,1857000.0
+70,"TH 70 - Abfallwirtschaft, Stadtreinigung und Zentralwerkstätten",Aufwendungen für Sach- und Dienstleistungen,Besondere Verwaltungs- und Betriebsaufwendungen,False,443000.0,-10000.0,433000.0
+70,"TH 70 - Abfallwirtschaft, Stadtreinigung und Zentralwerkstätten",Aufwendungen für Sach- und Dienstleistungen,Aufwendungen Vorräte,False,1732500.0,-60000.0,1672500.0
+70,"TH 70 - Abfallwirtschaft, Stadtreinigung und Zentralwerkstätten",Sonstige ordentliche Aufwendungen,"Honorarkräfte, Leiharbeiter",False,877800.0,-159000.0,718800.0
+70,"TH 70 - Abfallwirtschaft, Stadtreinigung und Zentralwerkstätten",Investitionen,Betriebsgeräte,False,160000.0,-10000.0,150000.0
+70,"TH 70 - Abfallwirtschaft, Stadtreinigung und Zentralwerkstätten",Investitionen,Energetische Versorgung ZBH,False,800000.0,0.0,800000.0
+80,TH 80 - Amt für Wirtschaftsförderung und Wissenschaft,Aufwendungen für Sach- und Dienstleistungen,Besondere Verwaltungs- und Betriebsaufwendungen,False,436500.0,-68500.0,368000.0
+80,TH 80 - Amt für Wirtschaftsförderung und Wissenschaft,Transferaufwendungen,Zuschüsse in Zukunftsfelder,False,24000.0,-24000.0,0.0
+80,TH 80 - Amt für Wirtschaftsförderung und Wissenschaft,Investitionen,8.80000042.740,False,50000.0,-5000.0,45000.0
+81,TH 81 - Amt für Mobilität,"Zuweisungen und Zuwendungen, Umlagen",Zuweisungen vom Land,False,437000.0,101530.0,538530.0
+81,TH 81 - Amt für Mobilität,Aufwendungen für Sach- und Dienstleistungen,Unterhaltung unbewegliches Vermögen,False,1400000.0,-75000.0,1325000.0
+81,TH 81 - Amt für Mobilität,Aufwendungen für Sach- und Dienstleistungen,Besondere Verwaltungs- und Betriebsaufwendungen,False,543500.0,-33000.0,510500.0
+81,TH 81 - Amt für Mobilität,Transferaufwendungen,Zuschuss für verkehrspädagogische Projekte Dritter,False,90000.0,-4500.0,85500.0
+81,TH 81 - Amt für Mobilität,Transferaufwendungen,"Zentrum für umweltbewusste Mobilität, Dezentrale Mobilitäts-",False,86000.0,-10000.0,76000.0
+81,TH 81 - Amt für Mobilität,Sonstige ordentliche Aufwendungen,Erstattungen private Unternehmen,False,5825000.0,-685000.0,5140000.0
+81,TH 81 - Amt für Mobilität,Sonstige ordentliche Aufwendungen,- Kurzstreckenticket,True,335000.0,-185000.0,150000.0
+81,TH 81 - Amt für Mobilität,Sonstige ordentliche Aufwendungen,- Vergünstigter ÖPNV / hd4mobility,True,1700000.0,-500000.0,1200000.0
+81,TH 81 - Amt für Mobilität,Sonstige ordentliche Aufwendungen,Büro-/EDV-Ausstattung,False,50000.0,0.0,50000.0
+81,TH 81 - Amt für Mobilität,Sonstige ordentliche Aufwendungen,Fahrzeuge,False,150000.0,0.0,150000.0
+81,TH 81 - Amt für Mobilität,Sonstige ordentliche Aufwendungen,Fahrradinfrastruktur,False,2000000.0,-300000.0,1700000.0
+81,TH 81 - Amt für Mobilität,Sonstige ordentliche Aufwendungen,Verkehrstechnik,False,650000.0,0.0,650000.0
+FW,TH FW - Allgemeine Finanzwirtschaft,Zinsen und ähnliche Aufwendungen,Anteilige ordentliche Erträge,False,379000.0,0.0,379000.0
+FW,TH FW - Allgemeine Finanzwirtschaft,Zinsen und ähnliche Aufwendungen,Globaler Minderaufwand,False,-3000000.0,-1000000.0,-4000000.0
+FW,TH FW - Allgemeine Finanzwirtschaft,Zinsen und ähnliche Aufwendungen,Anteilige ordentliche Aufwendungen,False,9751000.0,-3249000.0,6502000.0
+FW,TH FW - Allgemeine Finanzwirtschaft,Zinsen und ähnliche Aufwendungen,Anteiliges ordentliches Ergebnis,False,-9372000.0,3249000.0,-6123000.0
+FW,TH FW - Allgemeine Finanzwirtschaft,Zinsen und ähnliche Aufwendungen,Aufnahme von Krediten für investive Zwecke,False,0.0,71779678.0,71779678.0
+FW,TH FW - Allgemeine Finanzwirtschaft,Zinsen und ähnliche Aufwendungen,Aufnahme von Krediten für Umschuldungen,False,38500000.0,0.0,38500000.0
+FW,TH FW - Allgemeine Finanzwirtschaft,Zinsen und ähnliche Aufwendungen,Zwischensumme Kreditaufnahmen,False,38500000.0,71779678.0,110279678.0
+FW,TH FW - Allgemeine Finanzwirtschaft,Zinsen und ähnliche Aufwendungen,Städtische Beteiligungen,False,36979650.0,0.0,36979650.0
+FW,TH FW - Allgemeine Finanzwirtschaft,Zinsen und ähnliche Aufwendungen,betriebe Heidelberg,False,2000000.0,0.0,2000000.0
+FW,TH FW - Allgemeine Finanzwirtschaft,Zinsen und ähnliche Aufwendungen,Theater und Orchester Heidelberg,False,27934700.0,0.0,27934700.0
+FW,TH FW - Allgemeine Finanzwirtschaft,Zinsen und ähnliche Aufwendungen,Zwischensumme Rückzahlung von Betriebsmittelkrediten,False,66914350.0,0.0,66914350.0
+FW,TH FW - Allgemeine Finanzwirtschaft,Zinsen und ähnliche Aufwendungen,Einzahlungen insgesamt,False,28414350.0,71779678.0,177194028.0
+FW,TH FW - Allgemeine Finanzwirtschaft,Zinsen und ähnliche Aufwendungen,Tilgung von Krediten für investive Zwecke,False,11800000.0,-600000.0,11200000.0
+FW,TH FW - Allgemeine Finanzwirtschaft,Zinsen und ähnliche Aufwendungen,Tilgung von Krediten für Umschuldungen,False,38500000.0,0.0,38500000.0
+FW,TH FW - Allgemeine Finanzwirtschaft,Zinsen und ähnliche Aufwendungen,Zwischensumme Tilgungen,False,50300000.0,-600000.0,49700000.0
+FW,TH FW - Allgemeine Finanzwirtschaft,Zinsen und ähnliche Aufwendungen,Finanzierungsentgelte für die ÖPP-Projekte IGH und B³,False,3039400.0,0.0,3039400.0
+FW,TH FW - Allgemeine Finanzwirtschaft,Zinsen und ähnliche Aufwendungen,Restkaufpreisgelder,False,35300.0,0.0,35300.0
+FW,TH FW - Allgemeine Finanzwirtschaft,Zinsen und ähnliche Aufwendungen,Zwischensumme kreditähnliche Rechtsgeschäfte u. ä.,False,3074700.0,0.0,3074700.0
+FW,TH FW - Allgemeine Finanzwirtschaft,Zinsen und ähnliche Aufwendungen,tische Beteiligungen,False,38166530.0,-1166250.0,37000280.0
+FW,TH FW - Allgemeine Finanzwirtschaft,Zinsen und ähnliche Aufwendungen,Stadtbetriebe Heidelberg,False,1500000.0,0.0,1500000.0
+FW,TH FW - Allgemeine Finanzwirtschaft,Zinsen und ähnliche Aufwendungen,ter und Orchester Heidelberg,False,30234400.0,-750000.0,29484400.0
+FW,TH FW - Allgemeine Finanzwirtschaft,Zinsen und ähnliche Aufwendungen,Zwischensumme Gewährung von Betriebsmittelkrediten,False,69900930.0,-1916250.0,67984680.0
+FW,TH FW - Allgemeine Finanzwirtschaft,Zinsen und ähnliche Aufwendungen,Auszahlungen insgesamt,False,123275630.0,-2516250.0,120759380.0

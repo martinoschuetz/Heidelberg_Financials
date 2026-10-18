@@ -7,12 +7,15 @@ from pathlib import Path
 sys.stdout.reconfigure(encoding="utf-8")
 
 BASE_DIR = Path(__file__).resolve().parent
-NUM_RE = re.compile(r"^\*?[-+]?\d{1,3}(?:\.\d{3})*(?:,\d+)?$")
+NUM_RE = re.compile(r"^\*?[-+]?\d{1,3}(?:\.\d{3})*(?:,\d+)?-?(?:\d\))?$")
 
 
 def parse_num(s: str) -> float:
-    s = s.lstrip("*").replace(".", "").replace(",", ".").strip()
-    return float(s)
+    s = re.sub(r"\d\)$", "", s.lstrip("*").strip())
+    neg = s.endswith("-") or s.startswith("-")
+    s = s.strip("-+").replace(".", "").replace(",", ".").strip()
+    val = float(s)
+    return -val if neg else val
 
 
 # Canonical category classification for I. Gesamtbudget rows
@@ -58,7 +61,10 @@ OFFICIAL_AMT_NAMES = {
     "16-IZ": "TH 16-IZ Geschäftsstelle Interkulturelles Zentrum",
     "IZ": "TH 16-IZ Geschäftsstelle Interkulturelles Zentrum",
     "17": "TH 17 Amt für Digitales und Informationsverarbeitung",
+    "19": "TH 65 Hochbauamt",
     "20": "TH 20 Kämmereiamt",
+    "20-KV": "TH 23-KV Stabsstelle Konversion",
+    "KV": "TH 23-KV Stabsstelle Konversion",
     "23": "TH 23 Amt für Liegenschaften",
     "23-01 SW": "TH 23-SW Team Wohnen und aktive Bodenpolitik",
     "02-01": "TH 23-SW Team Wohnen und aktive Bodenpolitik",
@@ -74,6 +80,7 @@ OFFICIAL_AMT_NAMES = {
     "41-LT": "TH 41-LT Stabsstelle feeLit",
     "LT": "TH 41-LT Stabsstelle feeLit",
     "42": "TH 42 Kurpfälzisches Museum",
+    "44": "TH 44 Theater und Philharmonisches Orchester",
     "45": "TH 45 Stadtbücherei",
     "46": "TH 46 Musik- und Singschule",
     "47": "TH 47 Stadtarchiv",
@@ -120,6 +127,13 @@ def classify_gb_row(lbl: str):
     return None, None
 
 
+def is_ordentliche_subtotal(rl: str) -> bool:
+    return (
+        "Anteilige ordentliche" in rl
+        or rl in ("Ordentliche Erträge", "Ordentliche Aufwendungen", "Ordentliches Ergebnis")
+    )
+
+
 def extract_4year_tables(text: str, target_years=(2026, 2025, 2024, 2023)):
     y1, y2, y3, y4 = (str(y) for y in target_years)
     lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
@@ -127,15 +141,15 @@ def extract_4year_tables(text: str, target_years=(2026, 2025, 2024, 2023)):
     i = 0
     n = len(lines)
     while i < n:
-        window = " ".join(lines[i : min(n, i + 12)])
-        if f"Plan {y1}" in lines[i] and f"Plan {y2}" in window and y4 in window:
+        window = " ".join(lines[i : min(n, i + 14)])
+        if (f"Plan {y1}" in lines[i] or f"{y2}/{y1}" in lines[i]) and (f"Plan {y2}" in window or f"{y3}/{y2}" in window) and y4 in window:
             headings = []
             for back in range(i - 1, max(-1, i - 10), -1):
                 cand = lines[back]
                 if not cand.startswith("Seite |") and not cand.startswith("TH ") and "in €" not in cand:
                     headings.append(cand)
             j = i + 1
-            while j < min(n, i + 15):
+            while j < min(n, i + 18):
                 if y4 in lines[j]:
                     j += 1
                     if j < n and lines[j] == "in €":
@@ -164,11 +178,12 @@ def extract_4year_tables(text: str, target_years=(2026, 2025, 2024, 2023)):
                     label_parts = []
                     j += 4
                 else:
-                    if lines[j].startswith(f"Plan {y1}"):
+                    if lines[j].startswith(f"Plan {y1}") or lines[j].startswith(f"{y2}/{y1}"):
                         break
                     if rows and (
                         rows[-1][0].startswith("Summe")
                         or "Veranschlagtes Gesamtergebnis" in rows[-1][0]
+                        or rows[-1][0] == "Gesamtergebnis"
                         or "insgesamt" in rows[-1][0]
                     ):
                         break
@@ -189,9 +204,9 @@ def extract_pdf_deep(pdf_path: Path, table_years: tuple[int, int, int, int], emi
     gb_pages = []
     for p_idx in range(50, len(doc)):
         txt = doc[p_idx].get_text("text")
-        if ("I. Gesamtbudget" in txt or "Gesamtbudget" in txt) and "Anteilige ordentliche" in txt:
+        if ("I. Gesamtbudget" in txt or "Gesamtbudget" in txt) and ("Anteilige ordentliche" in txt or ("I. Gesamtbudget" in txt and "Personalaufwendungen" in txt)):
             tbls = extract_4year_tables(txt, table_years)
-            if any(any("Anteilige ordentliche" in r[0] for r in t["rows"]) for t in tbls):
+            if any(any(is_ordentliche_subtotal(r[0]) for r in t["rows"]) for t in tbls):
                 hdr_line = ""
                 for ln in txt.splitlines()[:6]:
                     ls = ln.strip()
@@ -221,22 +236,27 @@ def extract_pdf_deep(pdf_path: Path, table_years: tuple[int, int, int, int], emi
         txt_gb = doc[gb_p_idx].get_text("text")
         for t in extract_4year_tables(txt_gb, table_years):
             rlabels = [r[0] for r in t["rows"]]
-            if any("Anteilige ordentliche" in rl for rl in rlabels):
+            if any(is_ordentliche_subtotal(rl) for rl in rlabels):
+                aufw_sub = [v for rl, v in t["rows"] if "Anteilige ordentliche Aufwendungen" in rl or rl == "Ordentliche Aufwendungen"]
+                flip_aufw = bool(aufw_sub and any(v < 0 for v in aufw_sub[0].values()))
                 for lbl, vals in t["rows"]:
-                    if "Anteilige ordentliche Aufwendungen" in lbl or "Anteiliges ordentliches Ergebnis" in lbl:
+                    if "Anteilige ordentliche Aufwendungen" in lbl or lbl == "Ordentliche Aufwendungen" or "Anteiliges ordentliches Ergebnis" in lbl or lbl == "Ordentliches Ergebnis":
                         break
-                    if "Anteilige ordentliche Erträge" in lbl:
+                    if "Anteilige ordentliche Erträge" in lbl or lbl == "Ordentliche Erträge":
                         continue
                     canon_cat, typ = classify_gb_row(lbl)
                     if canon_cat and typ:
+                        norm_vals = dict(vals)
+                        if flip_aufw and typ == "Aufwendungen" and "Globaler Minderaufwand" not in lbl:
+                            norm_vals = {y: abs(norm_vals[y]) for y in table_years}
                         if "Globaler Minderaufwand" in lbl or "Bußgelder" in lbl:
-                            gb_special_rows.append((typ, canon_cat, lbl.replace(" 1)", "").strip(), vals))
+                            gb_special_rows.append((typ, canon_cat, lbl.replace(" 1)", "").strip(), norm_vals))
                         else:
                             key = (typ, canon_cat)
                             if key not in gb_cat_totals:
                                 gb_cat_totals[key] = {y: 0.0 for y in table_years}
                             for y in table_years:
-                                gb_cat_totals[key][y] += vals[y]
+                                gb_cat_totals[key][y] += norm_vals[y]
                 break
 
         # Emit Amt-level category records
@@ -267,7 +287,7 @@ def extract_pdf_deep(pdf_path: Path, table_years: tuple[int, int, int, int], emi
             tbls = extract_4year_tables(txt, table_years)
             for t in tbls:
                 rlabels = [r[0] for r in t["rows"]]
-                if p_idx == gb_p_idx and any("Anteilige ordentliche" in rl for rl in rlabels):
+                if p_idx == gb_p_idx and any(is_ordentliche_subtotal(rl) for rl in rlabels):
                     continue
                 detail_tables.append((p_idx + 1, t))
 
@@ -282,6 +302,8 @@ def extract_pdf_deep(pdf_path: Path, table_years: tuple[int, int, int, int], emi
                     tbls = extract_4year_tables(txt, table_years)
                     if tbls:
                         t6110 = tbls[0]
+                        aufw_sub_fw = [v for rl, v in t6110["rows"] if "Anteilige ordentliche Aufwendungen" in rl]
+                        flip_fw = bool(aufw_sub_fw and any(v < 0 for v in aufw_sub_fw[0].values()))
                         steuern_rows = []
                         zuw_rows = []
                         transf_rows = []
@@ -310,7 +332,8 @@ def extract_pdf_deep(pdf_path: Path, table_years: tuple[int, int, int, int], emi
                                     steuern_rows.append((lbl, vals))
                             else:
                                 if "Absetzung von Forderungen" not in lbl and "Abschreibungen" not in lbl:
-                                    transf_rows.append((lbl, vals))
+                                    norm_v = {y: abs(vals[y]) for y in table_years} if flip_fw else vals
+                                    transf_rows.append((lbl, norm_v))
                         if steuern_rows:
                             matched_cats[("Erträge", "Steuern und ähnliche Abgaben")] = steuern_rows
                         if zuw_rows:
@@ -331,7 +354,7 @@ def extract_pdf_deep(pdf_path: Path, table_years: tuple[int, int, int, int], emi
             non_sum_rows = [
                 (lbl, vals)
                 for lbl, vals in rows
-                if not lbl.startswith("Summe") and "insgesamt" not in lbl and "Anteilige ordentliche" not in lbl
+                if not lbl.startswith("Summe") and "insgesamt" not in lbl and not is_ordentliche_subtotal(lbl)
             ]
             if not non_sum_rows:
                 continue
@@ -431,6 +454,7 @@ def main():
     data_dir.mkdir(parents=True, exist_ok=True)
 
     pdf_configs = [
+        (pdf_dir / "20_pdf_hh_2015_16_Haushaltsplanentwurf.pdf", (2016, 2015, 2014, 2013), (2016, 2015, 2014, 2013)),
         (pdf_dir / "20_pdf_hh_2019_2020_Haushaltsplan.pdf", (2020, 2019, 2018, 2017), (2018, 2017)),
         (pdf_dir / "20_pdf_hh_2021_2022_Haushaltsplan.pdf", (2022, 2021, 2020, 2019), (2020, 2019)),
         (pdf_dir / "20_pdf_hh_2023_2024_Haushaltsplan.pdf", (2024, 2023, 2022, 2021), (2022, 2021)),

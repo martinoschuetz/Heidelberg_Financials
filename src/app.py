@@ -10,7 +10,7 @@ ROOT_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = ROOT_DIR / "data"
 
 st.set_page_config(
-    page_title="Haushalt Heidelberg Explorer (2017–2026)",
+    page_title="Haushalt Heidelberg Explorer (2013–2029)",
     page_icon="🏛️",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -92,30 +92,47 @@ def load_data() -> pd.DataFrame:
 
 
 @st.cache_data
-def load_macro_data() -> pd.DataFrame:
-    try:
-        df_real = pd.read_csv(DATA_DIR / "haushalt_heidelberg_real.csv", encoding="utf-8")
-        df_real["Jahr"] = df_real["Jahr"].astype(int)
-        df_real["Betrag"] = pd.to_numeric(df_real["Betrag"], errors="coerce").fillna(0.0)
-        return df_real
-    except Exception:
-        return pd.DataFrame()
+def load_supplementary_datasets() -> dict:
+    datasets = {}
+    csv_files = {
+        "real": "haushalt_heidelberg_real.csv",
+        "macro": "heidelberg_macro_2013_2029.csv",
+        "nh_gesamt": "heidelberg_nachtrag_2026_gesamt.csv",
+        "nh_aemter": "heidelberg_nachtrag_2026_aemter.csv",
+        "nh_massnahmen": "heidelberg_nachtrag_2026_massnahmen.csv",
+        "ja2024_aemter": "heidelberg_jahresabschluss_2024_aemter.csv",
+        "personal": "heidelberg_personal_stellen.csv",
+        "bilanz": "heidelberg_bilanz_2015_2024.csv",
+        "vorbelastungen": "heidelberg_vorbelastungen.csv",
+        "beteiligungen": "heidelberg_beteiligungen.csv",
+    }
+    for key, fname in csv_files.items():
+        fpath = DATA_DIR / fname
+        if fpath.exists():
+            datasets[key] = pd.read_csv(fpath, encoding="utf-8")
+        else:
+            datasets[key] = pd.DataFrame()
+    return datasets
 
 
 df = load_data()
-df_macro = load_macro_data()
+supp = load_supplementary_datasets()
 
 YEAR_STATUS = {
+    2013: "Ergebnis",
+    2014: "Plan",
+    2015: "Plan (HH 15/16) / Ist in Tab 3&5",
+    2016: "Plan (HH 15/16) / Ist in Tab 3&5",
     2017: "Ergebnis",
     2018: "Plan",
     2019: "Ergebnis",
     2020: "Plan",
     2021: "Ergebnis",
     2022: "Plan",
-    2023: "Ergebnis",
-    2024: "Plan",
-    2025: "Plan",
-    2026: "Plan",
+    2023: "Ergebnis (JA 2023/24)",
+    2024: "Plan (HH 25/26) / Ist in Tab 3&5",
+    2025: "Plan (HH 25/26)",
+    2026: "Plan (HH 25/26) / 1. Nachtrag in Tab 4",
 }
 
 valid_years = sorted(df["Jahr"].unique(), reverse=True)
@@ -124,7 +141,7 @@ default_year_idx = valid_years.index(2025) if 2025 in valid_years else 0
 # --- SIDEBAR FILTERS ---
 st.sidebar.title("🏛️ Haushalt-Filter")
 selected_year = st.sidebar.selectbox(
-    "Haushaltsjahr auswählen",
+    "Haushaltsjahr auswählen (Teilhaushalte)",
     valid_years,
     index=default_year_idx,
     format_func=lambda y: f"{y} ({YEAR_STATUS.get(y, 'Plan')})",
@@ -149,7 +166,7 @@ selected_aemter = st.sidebar.multiselect(
     "Ämter / Teilhaushalte filtern (optional)",
     options=all_aemter_for_year,
     default=[],
-    placeholder="Alle 41 Teilhaushalte",
+    placeholder="Alle Teilhaushalte",
 )
 
 search_query = st.sidebar.text_input(
@@ -160,16 +177,18 @@ search_query = st.sidebar.text_input(
 
 st.sidebar.markdown("---")
 st.sidebar.caption(
-    f"**Datenbasis:** Offizielle Haushaltspläne der Stadt Heidelberg (2017–2026), "
-    f"**{df['Amt'].nunique()} Teilhaushalte**, **{len(df):,} Einzelpositionen**."
+    f"**Datenbasis (16 PDFs, 2013–2029):**\n"
+    f"- Doppelhaushalte **2013–2026** (**{df['Amt'].nunique()} Teilhaushalte**, **{len(df):,} Einzelpositionen**)\n"
+    f"- **1. Nachtragshaushalt 2026** (Beschluss 18.12.2025 inkl. Finanzplanung **bis 2029**)\n"
+    f"- **Jahresabschlüsse 2023 & 2024** inkl. **10-Jahres-Bilanz (2015–2024)**, Stellenplan & Beteiligungen."
 )
 
 # --- HEADER ---
-st.title("🏛️ Haushalt der Stadt Heidelberg — Interaktiver Explorer (2017–2026)")
+st.title("🏛️ Haushalt & Finanzen der Stadt Heidelberg — Explorer (2013–2029)")
 st.markdown(
-    "Vollständig abgestimmte **Ergebnishaushalts- & Teilhaushalts-Analyse** aller **41 Ämter / Teilhaushalte** "
-    "(`TH 01` bis `TH FW Allgemeine Finanzwirtschaft`) inklusive der detaillierten **Erläuterungs-Einzelposten** "
-    "aus den offiziellen Haushaltsplänen der Stadt Heidelberg."
+    "Umfassende Analyse aller **Teilhaushalte (2013–2026)**, des **1. Nachtragshaushalts 2026 (Konsolidierungspaket +42,0 Mio. €)**, "
+    "der **Mittelfristigen Finanzplanung bis 2029**, des geprüften **Jahresabschlusses 2024**, der **10-Jahres-Schlussbilanz (1,78 Mrd. €)** "
+    "sowie der **städtischen Gesellschaften & Eigenbetriebe**."
 )
 
 # --- GLOBAL KPI METRICS FOR SELECTED YEAR ---
@@ -250,11 +269,13 @@ with k4:
     )
 
 # --- TABS ---
-tab1, tab2, tab3 = st.tabs(
+tab1, tab2, tab3, tab4, tab5 = st.tabs(
     [
-        "🧩 Kachel-Ansicht & Drill-Down (Jahres-Fokus)",
-        "📈 Zeitliche Entwicklung & Kostentreiber (2017–2026)",
-        "🏛️ Gesamthaushalt & Ämter-Saldo-Vergleich",
+        "🧩 Kacheln & Drill-Down (2013–26)",
+        "📈 Zeitreihen & Treiber (2013–26)",
+        "🏛️ Gesamthaushalt (2013–29)",
+        "🚨 1. Nachtrag 2026 & Finanzplan",
+        "🏦 Bilanz, JA 2024 & Konzern",
     ]
 )
 
@@ -272,21 +293,20 @@ with tab1:
         # Group by hierarchy
         grouped_df = filtered_df.groupby(["Amt", "Kategorie", "Sub_Kategorie"], as_index=False)["Betrag"].sum()
 
-        # Separate positive positions from negative global adjustments (e.g. Globaler Minderaufwand = -3.000.000 €)
-        # so Treemap/Sunburst areas and percentages are never distorted by .abs() on negative offsets.
         neg_df = grouped_df[grouped_df["Betrag"] < 0]
         pos_df = grouped_df[grouped_df["Betrag"] > 0].copy()
 
         if not neg_df.empty:
             neg_sum = neg_df["Betrag"].sum()
-            neg_items = ", ".join(f"{r['Amt']}: {r['Sub_Kategorie']} ({fmt_eur(r['Betrag'], 0)})" for _, r in neg_df.iterrows())
+            neg_items = ", ".join(
+                f"{r['Amt']}: {r['Sub_Kategorie']} ({fmt_eur(r['Betrag'], 0)})" for _, r in neg_df.iterrows()
+            )
             st.caption(
                 f"ℹ️ **Hinweis zur Kachel-Darstellung:** Im Gesamtsaldo ({fmt_eur(filtered_df['Betrag'].sum(), 0)}) "
-                f"sind pauschale Minderaufwendungen in Höhe von **{fmt_eur(neg_sum, 0)}** enthalten ({neg_items}). "
+                f"sind pauschale Minderaufwendungen/Absetzungen in Höhe von **{fmt_eur(neg_sum, 0)}** enthalten ({neg_items}). "
                 f"Die Flächenanteile im Diagramm zeigen die positiven Brutto-Ansätze ({fmt_eur(pos_df['Betrag'].sum(), 0)})."
             )
 
-        # Prevent parent-child label collisions in Plotly hierarchy
         pos_df["Sub_Label"] = np.where(
             pos_df["Sub_Kategorie"] == pos_df["Kategorie"],
             pos_df["Sub_Kategorie"] + " (Gesamtposition)",
@@ -319,7 +339,6 @@ with tab1:
                 color_discrete_sequence=px.colors.qualitative.Prism,
             )
 
-        # Format Euro values directly from fig.data[0].values (never splitting node_id on '/')
         if fig.data:
             vals = fig.data[0].values
             formatted_vals = [fmt_eur(float(v), 0) for v in vals]
@@ -412,7 +431,7 @@ with tab1:
             )
             st.plotly_chart(fig_kat, use_container_width=True)
 
-        # --- INTERACTIVE AGGRID TABLE (WITH TRUE NUMERIC SORTING & SUM AGGREGATION) ---
+        # --- INTERACTIVE AGGRID TABLE ---
         st.markdown("---")
         t_head_l, t_head_r = st.columns([3, 1])
         with t_head_l:
@@ -502,10 +521,10 @@ with tab1:
 
 
 # ==============================================================================
-# TAB 2: ZEITLICHE ENTWICKLUNG & KOSTENTREIBER (2017 - 2026)
+# TAB 2: ZEITLICHE ENTWICKLUNG & KOSTENTREIBER (2013 - 2026)
 # ==============================================================================
 with tab2:
-    st.subheader("📈 Größte Veränderungen & Treiber-Analyse")
+    st.subheader("📈 Größte Veränderungen & Treiber-Analyse (2013–2026)")
 
     ctrl1, ctrl2, ctrl3, ctrl4, ctrl5 = st.columns([1.3, 1, 1, 1.4, 1.2])
     all_years_sorted = sorted(df["Jahr"].unique())
@@ -517,7 +536,7 @@ with tab2:
         )
         typ_filter = "Aufwendungen" if "Aufwendungen" in top_typ_label else "Erträge"
     with ctrl2:
-        default_start = all_years_sorted.index(2023) if 2023 in all_years_sorted else 0
+        default_start = all_years_sorted.index(2013) if 2013 in all_years_sorted else 0
         start_yr = st.selectbox("Basisjahr (Von)", all_years_sorted, index=default_start, key="tab2_start")
     with ctrl3:
         default_end = all_years_sorted.index(2026) if 2026 in all_years_sorted else len(all_years_sorted) - 1
@@ -544,7 +563,7 @@ with tab2:
         )
 
     if start_yr >= end_yr:
-        st.warning("Bitte wähle ein Basisjahr, das vor dem Zieljahr liegt (z.B. 2023 bis 2026).")
+        st.warning("Bitte wähle ein Basisjahr, das vor dem Zieljahr liegt (z.B. 2013 bis 2026).")
     else:
         growth_base_df = df[df["Typ"] == typ_filter].copy()
         if selected_aemter:
@@ -586,8 +605,7 @@ with tab2:
                 x_col = "Wachstum_%"
                 x_title = f"Prozentuale Veränderung {start_yr} ➔ {end_yr} (in %)"
 
-            # Build unique, readable labels without truncation collisions
-            def make_unique_label(row, idx):
+            def make_unique_label(row):
                 amt_code = str(row["Amt"]).split(" ")[1] if str(row["Amt"]).startswith("TH ") else str(row["Amt"])[:12]
                 if agg_level == "Teilhaushalt (Amt gesamt)":
                     return str(row["Amt"])
@@ -599,8 +617,7 @@ with tab2:
                         sub = sub[:50] + "…"
                     return f"TH {amt_code} | {sub}"
 
-            raw_labels = [make_unique_label(r, i) for i, (_, r) in enumerate(top_growth.iterrows())]
-            # Disambiguate any identical labels so Plotly never stacks distinct bars
+            raw_labels = [make_unique_label(r) for _, r in top_growth.iterrows()]
             seen = {}
             unique_labels = []
             for lbl in raw_labels:
@@ -651,10 +668,10 @@ with tab2:
         else:
             st.warning(f"Für die Jahre {start_yr} und {end_yr} liegen keine Vergleichsdaten vor.")
 
-    # --- TIME SERIES EXPLORER (2017 - 2026) ---
+    # --- TIME SERIES EXPLORER (2013 - 2026) ---
     st.markdown("---")
-    st.subheader("⏱️ Mehrjahres-Zeitreihe (2017–2026) nach Amt, Kategorie & Einzelposten")
-    st.caption("Kaskadierende Auswahl: Wähle *Alle* auf einer Ebene, um die aggregierte Entwicklung zu betrachten.")
+    st.subheader("⏱️ Mehrjahres-Zeitreihe (2013–2026) nach Amt, Kategorie & Einzelposten")
+    st.caption("Kaskadierende Auswahl: Wähle *Alle* auf einer Ebene, um die aggregierte 14-Jahres-Entwicklung zu betrachten.")
 
     c0, c1, c2, c3 = st.columns(4)
     with c0:
@@ -686,21 +703,12 @@ with tab2:
     ts_data = ts_base_df.groupby("Jahr", as_index=False)["Betrag"].sum().sort_values("Jahr")
 
     if not ts_data.empty:
-        # Use first non-zero value as baseline so percentage evolution never divides by zero
         non_zero = ts_data[ts_data["Betrag"] != 0]
         base_val = non_zero.iloc[0]["Betrag"] if not non_zero.empty else 0.0
         base_yr = int(non_zero.iloc[0]["Jahr"]) if not non_zero.empty else int(ts_data.iloc[0]["Jahr"])
 
         ts_data["Entwicklung_gg_Basis_%"] = (
             ((ts_data["Betrag"] - base_val) / abs(base_val) * 100.0) if base_val != 0 else 0.0
-        )
-        ts_data["YoY_%"] = ts_data["Betrag"].pct_change() * 100.0
-        ts_data["Status"] = ts_data["Jahr"].map(lambda y: YEAR_STATUS.get(int(y), "Plan"))
-        ts_data["Label_Text"] = ts_data.apply(
-            lambda r: f"{fmt_mio(r['Betrag'])}\n({r['Entwicklung_gg_Basis_%']:+.1f}%)"
-            if abs(r["Betrag"]) >= 1e6
-            else f"{fmt_eur(r['Betrag'], 0)}\n({r['Entwicklung_gg_Basis_%']:+.1f}%)",
-            axis=1,
         )
 
         title_parts = [ts_typ, ts_amt]
@@ -737,68 +745,128 @@ with tab2:
 
 
 # ==============================================================================
-# TAB 3: GESAMTHAUSHALT & ÄMTER-SALDO-VERGLEICH (2017 - 2026)
+# TAB 3: GESAMTHAUSHALT (2013 - 2029) & ÄMTER-SALDO-VERGLEICH
 # ==============================================================================
 with tab3:
-    st.subheader("🏛️ Langfristige Entwicklung des Gesamthaushalts (2017–2026)")
-    st.write(
-        "Gegenüberstellung der **Ordentlichen Erträge**, **Ordentlichen Aufwendungen** und des "
-        "**Ordentlichen Ergebnisses (Saldo)** der Stadt Heidelberg von 2017 bis 2026."
+    st.subheader("🏛️ 17-Jahres-Entwicklung des Gesamthaushalts (2013–2029)")
+    st.markdown(
+        "Kombiniert die **geprüften Ist-Ergebnisse 2013–2024** (aus dem *Jahresabschluss 2024*, Teil VI Statistiken) "
+        "mit dem **Haushaltsplan 2025**, dem **1. Nachtragshaushalt 2026** und der **Mittelfristigen Finanzplanung 2027–2029**."
     )
 
-    yearly_tot = (
-        df.groupby(["Jahr", "Typ"], as_index=False)["Betrag"]
-        .sum()
-        .pivot(index="Jahr", columns="Typ", values="Betrag")
-        .fillna(0.0)
-        .reset_index()
-    )
-    yearly_tot["Saldo"] = yearly_tot.get("Erträge", 0.0) - yearly_tot.get("Aufwendungen", 0.0)
-    yearly_tot["Status"] = yearly_tot["Jahr"].map(lambda y: f"{y} ({YEAR_STATUS.get(int(y), 'Plan')})")
+    df_macro = supp.get("macro", pd.DataFrame())
+    if not df_macro.empty:
+        df_m = df_macro.copy()
+        df_m["Ertraege_EUR"] = df_m["Ordentliche_Ertraege_TEUR"] * 1000.0
+        df_m["Aufwendungen_EUR"] = df_m["Ordentliche_Aufwendungen_TEUR"] * 1000.0
+        df_m["Saldo_EUR"] = df_m["Ordentliches_Ergebnis_TEUR"] * 1000.0
+        df_m["Label"] = df_m["Jahr"].astype(str) + " (" + df_m["Status"].str.split(" ").str[0] + ")"
 
-    fig_macro = go.Figure()
-    fig_macro.add_trace(
-        go.Bar(
-            x=yearly_tot["Status"],
-            y=yearly_tot["Erträge"],
-            name="Ordentliche Erträge",
-            marker_color="#16a34a",
-            text=yearly_tot["Erträge"].apply(fmt_mio),
-            textposition="outside",
+        fig_macro = go.Figure()
+        fig_macro.add_trace(
+            go.Bar(
+                x=df_m["Label"],
+                y=df_m["Ertraege_EUR"],
+                name="Ordentliche Erträge",
+                marker_color="#16a34a",
+                text=df_m["Ertraege_EUR"].apply(fmt_mio),
+                textposition="outside",
+            )
         )
-    )
-    fig_macro.add_trace(
-        go.Bar(
-            x=yearly_tot["Status"],
-            y=yearly_tot["Aufwendungen"],
-            name="Ordentliche Aufwendungen",
-            marker_color="#dc2626",
-            text=yearly_tot["Aufwendungen"].apply(fmt_mio),
-            textposition="outside",
+        fig_macro.add_trace(
+            go.Bar(
+                x=df_m["Label"],
+                y=df_m["Aufwendungen_EUR"],
+                name="Ordentliche Aufwendungen",
+                marker_color="#dc2626",
+                text=df_m["Aufwendungen_EUR"].apply(fmt_mio),
+                textposition="outside",
+            )
         )
-    )
-    fig_macro.add_trace(
-        go.Scatter(
-            x=yearly_tot["Status"],
-            y=yearly_tot["Saldo"],
-            name="Ordentliches Ergebnis (Saldo)",
-            mode="lines+markers+text",
-            line=dict(color="#1d4ed8", width=3, dash="dot"),
-            marker=dict(size=9),
-            text=yearly_tot["Saldo"].apply(fmt_mio),
-            textposition="bottom center",
+        fig_macro.add_trace(
+            go.Scatter(
+                x=df_m["Label"],
+                y=df_m["Saldo_EUR"],
+                name="Ordentliches Ergebnis (Saldo)",
+                mode="lines+markers+text",
+                line=dict(color="#1d4ed8", width=3, dash="dot"),
+                marker=dict(size=9),
+                text=df_m["Saldo_EUR"].apply(fmt_mio),
+                textposition="bottom center",
+            )
         )
-    )
-    fig_macro.update_layout(
-        barmode="group",
-        title="Ordentliche Erträge vs. Aufwendungen & Ordentliches Ergebnis (2017–2026)",
-        xaxis_title="Haushaltsjahr",
-        yaxis_title="Betrag (€)",
-        height=520,
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-        template="plotly_white",
-    )
-    st.plotly_chart(fig_macro, use_container_width=True)
+        fig_macro.update_layout(
+            barmode="group",
+            title="Ordentliche Erträge vs. Aufwendungen & Ordentliches Ergebnis (2013–2029, Ist & Finanzplanung)",
+            xaxis_title="Haushaltsjahr",
+            yaxis_title="Betrag (€)",
+            height=540,
+            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+            template="plotly_white",
+        )
+        st.plotly_chart(fig_macro, use_container_width=True)
+
+        # Cashflow & Reserves vs. Debt Chart (2013-2029)
+        c_m1, c_m2 = st.columns(2)
+        with c_m1:
+            fig_cf = go.Figure()
+            fig_cf.add_trace(
+                go.Bar(
+                    x=df_m["Jahr"],
+                    y=df_m["Cashflow_Laufend_TEUR"] / 1000.0,
+                    name="Zahlungsmittelüberschuss/-bedarf lfd. Verwaltung (Mio. €)",
+                    marker_color=np.where(df_m["Cashflow_Laufend_TEUR"] >= 0, "#0d9488", "#e11d48"),
+                )
+            )
+            fig_cf.add_trace(
+                go.Scatter(
+                    x=df_m["Jahr"],
+                    y=df_m["Investitionsauszahlungen_TEUR"] / 1000.0,
+                    name="Investitionsauszahlungen (Mio. €)",
+                    mode="lines+markers",
+                    line=dict(color="#f59e0b", width=3),
+                )
+            )
+            fig_cf.update_layout(
+                title="Laufender Cashflow vs. Investitionsauszahlungen (2013–2029, in Mio. €)",
+                xaxis=dict(tickmode="linear", dtick=2),
+                yaxis_title="Mio. €",
+                height=420,
+                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+                template="plotly_white",
+            )
+            st.plotly_chart(fig_cf, use_container_width=True)
+
+        with c_m2:
+            fig_debt = go.Figure()
+            fig_debt.add_trace(
+                go.Scatter(
+                    x=df_m["Jahr"],
+                    y=df_m["Schulden_Kernhaushalt_TEUR"] / 1000.0,
+                    name="Schulden Kernhaushalt (Mio. €)",
+                    mode="lines+markers",
+                    line=dict(color="#dc2626", width=3),
+                    fill="tozeroy",
+                )
+            )
+            fig_debt.add_trace(
+                go.Scatter(
+                    x=df_m["Jahr"],
+                    y=df_m["Ergebnisruecklagen_TEUR"] / 1000.0,
+                    name="Ergebnisrücklagen / Fehlbetrag (Mio. €)",
+                    mode="lines+markers",
+                    line=dict(color="#2563eb", width=3, dash="dash"),
+                )
+            )
+            fig_debt.update_layout(
+                title="Schuldenstand Kernhaushalt vs. Ergebnisrücklagen (2013–2029, in Mio. €)",
+                xaxis=dict(tickmode="linear", dtick=2),
+                yaxis_title="Mio. €",
+                height=420,
+                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+                template="plotly_white",
+            )
+            st.plotly_chart(fig_debt, use_container_width=True)
 
     st.markdown("---")
     st.subheader(f"⚖️ Netto-Ressourcen-/Zuschussbedarf je Teilhaushalt im Jahr {selected_year}")
@@ -855,3 +923,402 @@ with tab3:
         template="plotly_white",
     )
     st.plotly_chart(fig_saldo, use_container_width=True)
+
+
+# ==============================================================================
+# TAB 4: 1. NACHTRAGSHAUSHALT 2026 & FINANZPLANUNG BIS 2029
+# ==============================================================================
+with tab4:
+    st.subheader("🚨 1. Nachtragshaushalt 2026 (Beschluss 18.12.2025) — Konsolidierungspaket")
+    st.info(
+        "**Hintergrund:** Nach Beanstandungen des Regierungspräsidiums Karlsruhe zum Doppelhaushalt 2025/2026 hat der "
+        "Gemeinderat am **18. Dezember 2025** den **1. Nachtragshaushalt 2026** (`20_pdf_nachtragshaushalt_2026.pdf`, 238 Seiten) "
+        "beschlossen. Durch **+25,20 Mio. € höhere Erträge** (u.a. Beibehaltung Gewerbesteuer-Hebesatz auf 400%, höhere Schlüsselzuweisungen) "
+        "und **-16,84 Mio. € geringere Aufwendungen** (u.a. 5%-Kürzung freiwilliger Zuschüsse, Sachkostenreduktion, höherer globaler Minderaufwand) "
+        "verbessert sich das veranschlagte Ordentliche Ergebnis 2026 um **+42,04 Mio. €** (von **-82,65 Mio. €** auf **-40,62 Mio. €**), "
+        "und der Zahlungsmittelsaldo im Ergebnishaushalt dreht von **-28,93 Mio. €** auf **+11,19 Mio. € Überschuss**."
+    )
+
+    nh1, nh2, nh3, nh4 = st.columns(4)
+    nh1.metric("Ordentliche Erträge 2026 (Neu)", "868.460.060 €", "+25,20 Mio. € (+3,0%) ggü. Ursprungsplan")
+    nh2.metric(
+        "Ordentliche Aufwendungen 2026 (Neu)",
+        "909.078.188 €",
+        "-16,84 Mio. € (-1,8%) Einsparung",
+        delta_color="inverse",
+    )
+    nh3.metric("Ordentliches Ergebnis 2026 (Neu)", "-40.618.128 €", "+42,04 Mio. € Verbesserung")
+    nh4.metric("Cashflow Ergebnishaushalt 2026", "+11.188.802 €", "+40,12 Mio. € (von -28,93 Mio. €)")
+
+    df_nh_ges = supp.get("nh_gesamt", pd.DataFrame())
+    df_nh_aemter = supp.get("nh_aemter", pd.DataFrame())
+    df_nh_mass = supp.get("nh_massnahmen", pd.DataFrame())
+
+    if not df_nh_ges.empty:
+        col_nh_l, col_nh_r = st.columns(2)
+        with col_nh_l:
+            df_nh_delta = df_nh_ges[df_nh_ges["Aenderung_2026_EUR"] != 0].copy()
+            df_nh_delta["Wirksamkeit_EUR"] = np.where(
+                df_nh_delta["Typ"] == "Erträge",
+                df_nh_delta["Aenderung_2026_EUR"],
+                -df_nh_delta["Aenderung_2026_EUR"],
+            )
+            df_nh_delta["Delta_Text"] = df_nh_delta["Aenderung_2026_EUR"].apply(
+                lambda v: ("+" if v >= 0 else "") + fmt_mio(v)
+            )
+            fig_nh_cat = px.bar(
+                df_nh_delta.sort_values("Wirksamkeit_EUR", ascending=True),
+                x="Wirksamkeit_EUR",
+                y="Position",
+                color="Typ",
+                orientation="h",
+                text="Delta_Text",
+                color_discrete_map={"Erträge": "#16a34a", "Aufwendungen": "#2563eb"},
+                custom_data=["Bisher_2026_EUR", "Neu_2026_EUR", "Haupttreiber"],
+                title=" Ergebnisverbesserung (+42,04 Mio. €) nach Position im 1. Nachtrag 2026",
+            )
+            fig_nh_cat.update_traces(
+                textposition="outside",
+                cliponaxis=False,
+                hovertemplate=(
+                    "<b>%{y}</b><br>"
+                    "Entlastungsbeitrag: <b>%{x:,.0f} €</b><br>"
+                    "Bisher 2026: %{customdata[0]:,.0f} €<br>"
+                    "Neu 2026: %{customdata[1]:,.0f} €<br>"
+                    "Treiber: %{customdata[2]}<extra></extra>"
+                ),
+            )
+            fig_nh_cat.update_layout(
+                xaxis_title="Verbesserung des Ordentlichen Ergebnisses 2026 (€)",
+                yaxis_title="",
+                height=460,
+                margin=dict(t=45, l=10, r=40, b=20),
+                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+                template="plotly_white",
+            )
+            st.plotly_chart(fig_nh_cat, use_container_width=True)
+
+        with col_nh_r:
+            if not df_nh_aemter.empty:
+                amt_erg = df_nh_aemter[
+                    df_nh_aemter["Position"].str.contains("Anteiliges ordentliches Ergebnis", case=False, na=False)
+                ].copy()
+                amt_erg = amt_erg[amt_erg["Aenderung_2026"] != 0].sort_values("Aenderung_2026", ascending=False)
+                amt_erg["Amt_Kurz"] = amt_erg["Amt"].apply(short_amt)
+                amt_erg["Delta_Text"] = amt_erg["Aenderung_2026"].apply(
+                    lambda v: ("+" if v >= 0 else "") + fmt_mio(v)
+                )
+                fig_nh_amt = px.bar(
+                    amt_erg.head(18),
+                    x="Aenderung_2026",
+                    y="Amt_Kurz",
+                    orientation="h",
+                    text="Delta_Text",
+                    color="Aenderung_2026",
+                    color_continuous_scale="Tealgrn",
+                    custom_data=["Amt", "Bisher_2026", "Neu_2026"],
+                    title="Top 18 Teilhaushalte nach Ergebnisverbesserung im 1. Nachtrag 2026",
+                )
+                fig_nh_amt.update_traces(
+                    textposition="outside",
+                    cliponaxis=False,
+                    hovertemplate=(
+                        "<b>%{customdata[0]}</b><br>"
+                        "Ergebnis-Verbesserung: <b>%{x:+,.0f} €</b><br>"
+                        "Bisheriges Ergebnis 2026: %{customdata[1]:,.0f} €<br>"
+                        "Neues Ergebnis 2026: %{customdata[2]:,.0f} €<extra></extra>"
+                    ),
+                )
+                fig_nh_amt.update_layout(
+                    yaxis={"categoryorder": "total ascending", "title": ""},
+                    xaxis_title="Verbesserung des anteiligen ordentlichen Ergebnisses (€)",
+                    coloraxis_showscale=False,
+                    height=460,
+                    margin=dict(t=45, l=10, r=40, b=20),
+                    template="plotly_white",
+                )
+                st.plotly_chart(fig_nh_amt, use_container_width=True)
+
+    # --- STRUCTURAL CAUSES FROM OFFICIAL CITY GRAPHICS ---
+    st.markdown("---")
+    st.subheader("📊 Strukturelle Ursachen des Haushaltsdefizits (Städtische Analysedokumente 2025/2026)")
+    c_cause1, c_cause2 = st.columns(2)
+    with c_cause1:
+        df_bund = pd.DataFrame([
+            {"Bereich": "Sozial- & Jugendhilfe (u.a. BTHG Eingliederungshilfe)", "Jahr": "2025", "Mehrkosten_Mio": 39.1},
+            {"Bereich": "Sozial- & Jugendhilfe (u.a. BTHG Eingliederungshilfe)", "Jahr": "2026", "Mehrkosten_Mio": 44.5},
+            {"Bereich": "Betreuung in Kindertageseinrichtungen (Kita)", "Jahr": "2025", "Mehrkosten_Mio": 28.7},
+            {"Bereich": "Betreuung in Kindertageseinrichtungen (Kita)", "Jahr": "2026", "Mehrkosten_Mio": 32.7},
+            {"Bereich": "Bildung (u.a. Rechtsanspruch Ganztagsförderung Grundschule)", "Jahr": "2025", "Mehrkosten_Mio": 11.6},
+            {"Bereich": "Bildung (u.a. Rechtsanspruch Ganztagsförderung Grundschule)", "Jahr": "2026", "Mehrkosten_Mio": 12.2},
+        ])
+        fig_bund = px.bar(
+            df_bund,
+            x="Jahr",
+            y="Mehrkosten_Mio",
+            color="Bereich",
+            text="Mehrkosten_Mio",
+            title="Ausgabensteigerungen durch Bundesbeschlüsse (+80 Mio. € in 2025 / +90 Mio. € in 2026 ggü. 2021)",
+            color_discrete_sequence=["#dc2626", "#f97316", "#eab308"],
+        )
+        fig_bund.update_traces(texttemplate="+%{text:.1f} Mio. €", textposition="inside")
+        fig_bund.update_layout(
+            yaxis_title="Mehrkosten ggü. 2021 (in Mio. €)",
+            height=400,
+            legend=dict(orientation="h", yanchor="bottom", y=-0.35, xanchor="left", x=0),
+            template="plotly_white",
+        )
+        st.plotly_chart(fig_bund, use_container_width=True)
+
+    with c_cause2:
+        df_rev_loss = pd.DataFrame([
+            {"Ursache": "Gewerbesteuer-Einbruch 2024 (135 statt 158 Mio. € Prognose)", "Verlust_Mio": -23.0},
+            {"Ursache": "Schlüsselzuweisungen 2025/26 (Einwohnerkorrektur durch Zensus 2022)", "Verlust_Mio": -30.0},
+        ])
+        fig_loss = px.bar(
+            df_rev_loss,
+            x="Verlust_Mio",
+            y="Ursache",
+            orientation="h",
+            text="Verlust_Mio",
+            color="Ursache",
+            color_discrete_sequence=["#be123c", "#9f1239"],
+            title="Besondere strukturelle Einnahmeverluste (-53 Mio. € durch Wirtschaftskrise & Zensus)",
+        )
+        fig_loss.update_traces(texttemplate="%{text:.0f} Mio. €", textposition="inside")
+        fig_loss.update_layout(
+            xaxis_title="Einnahmeverlust (in Mio. €)",
+            yaxis_title="",
+            showlegend=False,
+            height=400,
+            template="plotly_white",
+        )
+        st.plotly_chart(fig_loss, use_container_width=True)
+
+    # --- LINE-ITEM CONSOLIDATION TABLE FROM 1. NACHTRAG 2026 ---
+    if not df_nh_mass.empty:
+        st.markdown("---")
+        st.subheader(f"✂️ Alle {len(df_nh_mass)} Einzel-Änderungsmaßnahmen im 1. Nachtragshaushalt 2026")
+        st.caption(
+            "Durchsuche alle konkreten Kürzungen, 5%-Zuschussreduzierungen (`Kuerzung_5_Prozent_Freiwillig = True`), "
+            "Investitionsverschiebungen und Einnahmeerhöhungen aus den Teilhaushalten (`Seiten 67–236`)."
+        )
+        f_c1, f_c2 = st.columns([2, 1])
+        with f_c1:
+            nh_search = st.text_input(
+                "🔍 Maßnahme oder Amt im Nachtragshaushalt filtern:",
+                value="",
+                placeholder="z.B. Stadtteilbudget, Kultur, Zuschuss, Schwimmbad, Gewerbesteuer...",
+            )
+        with f_c2:
+            only_5pct = st.checkbox("Nur 5%-Kürzungen freiwilliger Zuschüsse (*) anzeigen", value=False)
+
+        view_mass = df_nh_mass.copy()
+        if nh_search.strip():
+            q_nh = nh_search.strip().lower()
+            view_mass = view_mass[
+                view_mass["Amt"].str.lower().str.contains(q_nh, na=False)
+                | view_mass["Massnahme"].str.lower().str.contains(q_nh, na=False)
+                | view_mass["Kategorie"].str.lower().str.contains(q_nh, na=False)
+            ]
+        if only_5pct:
+            view_mass = view_mass[view_mass["Kuerzung_5_Prozent_Freiwillig"] == True]
+
+        view_mass = view_mass.sort_values("Aenderung_2026", ascending=True)
+        st.dataframe(
+            view_mass,
+            use_container_width=True,
+            height=420,
+            column_config={
+                "Bisher_2026": st.column_config.NumberColumn("Bisher 2026 (€)", format="%.0f €"),
+                "Aenderung_2026": st.column_config.NumberColumn("Änderung (+/- €)", format="%+.0f €"),
+                "Neu_2026": st.column_config.NumberColumn("Neu 2026 (€)", format="%.0f €"),
+            },
+        )
+
+
+# ==============================================================================
+# TAB 5: BILANZ (2015-2024), JAHRESABSCHLUSS 2024, STELLENPLAN & KONZERN
+# ==============================================================================
+with tab5:
+    st.subheader("🏦 10-Jahres-Schlussbilanz (2015–2024) & Vorbelastungen (Jahresabschluss 2024)")
+    df_bilanz = supp.get("bilanz", pd.DataFrame())
+    df_vorb = supp.get("vorbelastungen", pd.DataFrame())
+    df_ja24 = supp.get("ja2024_aemter", pd.DataFrame())
+    df_pers = supp.get("personal", pd.DataFrame())
+    df_bet = supp.get("beteiligungen", pd.DataFrame())
+
+    b1, b2, b3, b4 = st.columns(4)
+    b1.metric("Bilanzsumme (31.12.2024)", "1.780,06 Mio. €", "+22,43 Mio. € (+1,3%) ggü. 2023")
+    b2.metric("Eigenkapital / Kapitalposition (2024)", "1.006,93 Mio. €", "-37,47 Mio. € (Eigenkapitalquote 56,6%)")
+    b3.metric(
+        "Verbindlichkeiten Bilanz (2024)",
+        "431,15 Mio. €",
+        "+79,47 Mio. € (+22,6%) ggü. 2023",
+        delta_color="inverse",
+    )
+    b4.metric(
+        "Vorbelastungen künftiger Jahre (2024)",
+        "1.220,57 Mio. €",
+        "Bürgschaften 634 Mio. € + Pensionen/Beihilfe 542 Mio. €",
+        delta_color="off",
+    )
+
+    if not df_bilanz.empty:
+        col_b1, col_b2 = st.columns(2)
+        with col_b1:
+            akt_df = df_bilanz[df_bilanz["Seite"] == "Aktiva"].copy()
+            fig_akt = px.area(
+                akt_df,
+                x="Jahr",
+                y="Betrag_TEUR",
+                color="Position",
+                title="Aktiva-Entwicklung 2015–2024 (in T€, Bilanzsumme 1,78 Mrd. €)",
+            )
+            fig_akt.update_layout(
+                xaxis=dict(tickmode="linear", dtick=1),
+                yaxis_title="Betrag (in T€)",
+                height=450,
+                legend=dict(orientation="h", yanchor="top", y=-0.2, xanchor="left", x=0, font=dict(size=10)),
+                template="plotly_white",
+            )
+            st.plotly_chart(fig_akt, use_container_width=True)
+
+        with col_b2:
+            pas_df = df_bilanz[df_bilanz["Seite"] == "Passiva"].copy()
+            fig_pas = px.area(
+                pas_df,
+                x="Jahr",
+                y="Betrag_TEUR",
+                color="Position",
+                title="Passiva-Entwicklung 2015–2024 (Eigenkapital, Rücklagen, Schulden in T€)",
+            )
+            fig_pas.update_layout(
+                xaxis=dict(tickmode="linear", dtick=1),
+                yaxis_title="Betrag (in T€)",
+                height=450,
+                legend=dict(orientation="h", yanchor="top", y=-0.2, xanchor="left", x=0, font=dict(size=10)),
+                template="plotly_white",
+            )
+            st.plotly_chart(fig_pas, use_container_width=True)
+
+    # --- VORBELASTUNGEN & KONZERNVERSCHULDUNG ---
+    st.markdown("---")
+    col_v1, col_v2 = st.columns(2)
+    with col_v1:
+        st.subheader("⚠️ Außerbilanzielle Vorbelastungen (1,221 Mrd. €)")
+        if not df_vorb.empty:
+            fig_vorb = px.bar(
+                df_vorb.sort_values("Stand_2024_TEUR", ascending=True),
+                x="Stand_2024_TEUR",
+                y="Kategorie",
+                orientation="h",
+                color="Stand_2024_TEUR",
+                color_continuous_scale="OrRd",
+                custom_data=["Stand_2023_TEUR", "Erlaeuterung"],
+                title="Vorbelastungen künftiger Haushaltsjahre zum 31.12.2024 (in T€)",
+            )
+            fig_vorb.update_traces(
+                hovertemplate=(
+                    "<b>%{y}</b><br>"
+                    "Stand 31.12.2024: <b>%{x:,.0f} T€</b><br>"
+                    "Stand 31.12.2023: %{customdata[0]:,.0f} T€<br>"
+                    "Info: %{customdata[1]}<extra></extra>"
+                )
+            )
+            fig_vorb.update_layout(
+                yaxis_title="",
+                xaxis_title="Betrag (in T€)",
+                coloraxis_showscale=False,
+                height=400,
+                template="plotly_white",
+            )
+            st.plotly_chart(fig_vorb, use_container_width=True)
+
+    with col_v2:
+        st.subheader("🏢 Städtische Gesellschaften, Eigenbetriebe & Schulden 2026")
+        if not df_bet.empty:
+            st.dataframe(
+                df_bet,
+                use_container_width=True,
+                height=400,
+                column_config={
+                    "Ertraege_2026_TEUR": st.column_config.NumberColumn("Erträge 2026 (T€)", format="%.0f T€"),
+                    "Aufwendungen_2026_TEUR": st.column_config.NumberColumn("Aufwendungen 2026 (T€)", format="%.0f T€"),
+                    "Jahresergebnis_2026_TEUR": st.column_config.NumberColumn("Ergebnis 2026 (T€)", format="%+.0f T€"),
+                    "Schulden_Ende_2026_TEUR": st.column_config.NumberColumn("Schulden Ende 2026 (T€)", format="%.0f T€"),
+                },
+            )
+
+    # --- JAHRESABSCHLUSS 2024 PLAN VS IST & STELLENPLAN ---
+    st.markdown("---")
+    col_j1, col_j2 = st.columns(2)
+    with col_j1:
+        st.subheader("📊 Jahresabschluss 2024: Plan vs. Ist-Ergebnis je Amt")
+        if not df_ja24.empty:
+            ja_erg = df_ja24[
+                df_ja24["Position"].str.contains("Anteiliges ordentliches Ergebnis", case=False, na=False)
+            ].copy()
+            ja_erg = ja_erg[~ja_erg["TH"].astype(str).isin(["FW"])].sort_values("Abweichung_2024", ascending=True)
+            ja_erg["Amt_Kurz"] = ja_erg["Amt"].apply(short_amt)
+            fig_ja = px.bar(
+                ja_erg.head(20),
+                x="Abweichung_2024",
+                y="Amt_Kurz",
+                orientation="h",
+                color="Abweichung_2024",
+                color_continuous_scale="RdYlGn",
+                custom_data=["Amt", "Plan_2024", "Ist_2024"],
+                title="Größte Budgetabweichungen 2024 (Ist vs. Fortgeschriebener Plan, in €)",
+            )
+            fig_ja.update_traces(
+                hovertemplate=(
+                    "<b>%{customdata[0]}</b><br>"
+                    "Abweichung 2024: <b>%{x:+,.0f} €</b><br>"
+                    "Plan 2024: %{customdata[1]:,.0f} €<br>"
+                    "Ist 2024: %{customdata[2]:,.0f} €<extra></extra>"
+                )
+            )
+            fig_ja.update_layout(
+                yaxis_title="",
+                xaxis_title="Abweichung Ist 2024 ggü. Plan 2024 (€)",
+                coloraxis_showscale=False,
+                height=480,
+                template="plotly_white",
+            )
+            st.plotly_chart(fig_ja, use_container_width=True)
+
+    with col_j2:
+        st.subheader("👥 Personal & Stellenplan nach Amt (2.658 Stellen in 2025/26)")
+        if not df_pers.empty:
+            pers_25 = df_pers[df_pers["Jahr"] == 2025].sort_values("Planstellen", ascending=False).head(20).copy()
+            pers_25["Amt_Kurz"] = pers_25["Amt"].apply(short_amt)
+            fig_pers = go.Figure()
+            fig_pers.add_trace(
+                go.Bar(
+                    y=pers_25["Amt_Kurz"],
+                    x=pers_25["Beamte_Stellen"],
+                    name="Beamtinnen & Beamte (733,75 gesamt)",
+                    orientation="h",
+                    marker_color="#1d4ed8",
+                )
+            )
+            fig_pers.add_trace(
+                go.Bar(
+                    y=pers_25["Amt_Kurz"],
+                    x=pers_25["Tarif_Stellen"],
+                    name="Tarifbeschäftigte (1.924,25 gesamt)",
+                    orientation="h",
+                    marker_color="#0d9488",
+                )
+            )
+            fig_pers.update_layout(
+                barmode="stack",
+                yaxis={"categoryorder": "total ascending", "title": ""},
+                xaxis_title="Planstellen 2025/2026 (Vollzeitäquivalente)",
+                title="Top 20 Ämter nach Planstellen 2025/2026 (Beamte vs. Tarifbeschäftigte)",
+                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+                height=480,
+                template="plotly_white",
+            )
+            st.plotly_chart(fig_pers, use_container_width=True)

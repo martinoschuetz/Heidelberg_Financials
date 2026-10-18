@@ -9,6 +9,10 @@ PDF_DIR.mkdir(parents=True, exist_ok=True)
 
 base_url = 'https://www.heidelberg.de'
 pages = [
+    '/HD/Rathaus/haushalt.html',
+    '/HD/Rathaus/haushalt+2025_2026.html',
+    '/HD/Rathaus/nachtragshaushalt+2026.html',
+    '/HD/Rathaus/vorherige+haushaltsplaene.html',
     '/HD/Rathaus/Doppelhaushalt+2013_2014.html',
     '/HD/Rathaus/doppelhaushalt+2015_2016.html',
     '/HD/Rathaus/doppelhaushalt+2017_2018.html',
@@ -23,10 +27,11 @@ pdf_links = []
 for page in pages:
     url = base_url + page
     try:
-        html = urllib.request.urlopen(url).read().decode('utf-8')
+        html = urllib.request.urlopen(url).read().decode('utf-8', errors='ignore')
         links = set(re.findall(r'href=[\x22\x27]([^\x22\x27]+\.pdf)', html, re.I))
         for link in links:
-            if 'haushalt' in link.lower() and 'nachtrag' not in link.lower() and 'reden' not in link.lower():
+            low = link.lower()
+            if ('haushalt' in low or 'jahresabschluss' in low or 'nachtrag' in low) and 'reden' not in low:
                 pdf_links.append(link)
     except Exception as e:
         print(f"Error fetching {url}: {e}")
