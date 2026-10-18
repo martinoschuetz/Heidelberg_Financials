@@ -1,0 +1,361 @@
+Jahr,Dezernat,Amt,Typ,Betrag
+2017,D1: Bürgermeisteramt,Personal,Erträge,11324905.38
+2017,D1: Bürgermeisteramt,Personal,Aufwendungen,99019116.93
+2017,D1: Bürgermeisteramt,Organisation,Erträge,23856749.21
+2017,D1: Bürgermeisteramt,Organisation,Aufwendungen,28566093.79
+2017,D1: Bürgermeisteramt,Presse,Erträge,97815916.62
+2017,D1: Bürgermeisteramt,Presse,Aufwendungen,31272742.07
+2017,D2: Finanzen & Sicherheit,Kämmerei,Erträge,469131551.05
+2017,D2: Finanzen & Sicherheit,Kämmerei,Aufwendungen,50060059.58
+2017,D2: Finanzen & Sicherheit,Feuerwehr,Erträge,3580050.09
+2017,D2: Finanzen & Sicherheit,Feuerwehr,Aufwendungen,63758691.02
+2017,D2: Finanzen & Sicherheit,Bürgeramt,Erträge,76581407.06
+2017,D2: Finanzen & Sicherheit,Bürgeramt,Aufwendungen,40660998.01
+2017,D3: Kultur & Bürgerservice,Kulturamt,Erträge,98318517.77
+2017,D3: Kultur & Bürgerservice,Kulturamt,Aufwendungen,93566889.44
+2017,D3: Kultur & Bürgerservice,Theater,Erträge,99966372.1
+2017,D3: Kultur & Bürgerservice,Theater,Aufwendungen,83288778.05
+2017,D3: Kultur & Bürgerservice,Musikschule,Erträge,99664964.26
+2017,D3: Kultur & Bürgerservice,Musikschule,Aufwendungen,90454682.97
+2017,"D4: Soziales, Bildung & Familie",Sozialamt,Erträge,39883096.77
+2017,"D4: Soziales, Bildung & Familie",Sozialamt,Aufwendungen,336067689.99
+2017,"D4: Soziales, Bildung & Familie",Jugendamt,Erträge,68770185.42
+2017,"D4: Soziales, Bildung & Familie",Jugendamt,Aufwendungen,27730679.0
+2017,"D4: Soziales, Bildung & Familie",Schulverwaltungsamt,Erträge,50365367.99
+2017,"D4: Soziales, Bildung & Familie",Schulverwaltungsamt,Aufwendungen,11153741.07
+2017,D5: Bauen & Verkehr,Stadtplanungsamt,Erträge,34659981.37
+2017,D5: Bauen & Verkehr,Stadtplanungsamt,Aufwendungen,37513536.72
+2017,D5: Bauen & Verkehr,Tiefbauamt,Erträge,74979944.1
+2017,D5: Bauen & Verkehr,Tiefbauamt,Aufwendungen,25184872.54
+2017,D5: Bauen & Verkehr,Gebäudemanagement,Erträge,57790867.19
+2017,D5: Bauen & Verkehr,Gebäudemanagement,Aufwendungen,83526950.45
+2017,D6: Umwelt & Klimaschutz,Umweltamt,Erträge,10186201.6
+2017,D6: Umwelt & Klimaschutz,Umweltamt,Aufwendungen,46997675.9
+2017,D6: Umwelt & Klimaschutz,Grünflächenamt,Erträge,45577734.25
+2017,D6: Umwelt & Klimaschutz,Grünflächenamt,Aufwendungen,58721050.99
+2017,D6: Umwelt & Klimaschutz,Abfallwirtschaft,Erträge,3256633.04
+2017,D6: Umwelt & Klimaschutz,Abfallwirtschaft,Aufwendungen,96393001.24
+2018,D1: Bürgermeisteramt,Personal,Erträge,37139109.79
+2018,D1: Bürgermeisteramt,Personal,Aufwendungen,99679980.81
+2018,D1: Bürgermeisteramt,Organisation,Erträge,102684877.44
+2018,D1: Bürgermeisteramt,Organisation,Aufwendungen,54338857.98
+2018,D1: Bürgermeisteramt,Presse,Erträge,62966409.06
+2018,D1: Bürgermeisteramt,Presse,Aufwendungen,45317537.84
+2018,D2: Finanzen & Sicherheit,Kämmerei,Erträge,857564541.15
+2018,D2: Finanzen & Sicherheit,Kämmerei,Aufwendungen,38189240.52
+2018,D2: Finanzen & Sicherheit,Feuerwehr,Erträge,9460515.74
+2018,D2: Finanzen & Sicherheit,Feuerwehr,Aufwendungen,59363069.51
+2018,D2: Finanzen & Sicherheit,Bürgeramt,Erträge,43958692.12
+2018,D2: Finanzen & Sicherheit,Bürgeramt,Aufwendungen,42387309.6
+2018,D3: Kultur & Bürgerservice,Kulturamt,Erträge,39086682.87
+2018,D3: Kultur & Bürgerservice,Kulturamt,Aufwendungen,82654130.95
+2018,D3: Kultur & Bürgerservice,Theater,Erträge,28771397.44
+2018,D3: Kultur & Bürgerservice,Theater,Aufwendungen,85797487.57
+2018,D3: Kultur & Bürgerservice,Musikschule,Erträge,39857929.83
+2018,D3: Kultur & Bürgerservice,Musikschule,Aufwendungen,1517540.88
+2018,"D4: Soziales, Bildung & Familie",Sozialamt,Erträge,76379772.65
+2018,"D4: Soziales, Bildung & Familie",Sozialamt,Aufwendungen,255825086.04
+2018,"D4: Soziales, Bildung & Familie",Jugendamt,Erträge,76328379.16
+2018,"D4: Soziales, Bildung & Familie",Jugendamt,Aufwendungen,15036450.12
+2018,"D4: Soziales, Bildung & Familie",Schulverwaltungsamt,Erträge,73721478.9
+2018,"D4: Soziales, Bildung & Familie",Schulverwaltungsamt,Aufwendungen,69503298.65
+2018,D5: Bauen & Verkehr,Stadtplanungsamt,Erträge,49229231.54
+2018,D5: Bauen & Verkehr,Stadtplanungsamt,Aufwendungen,41034938.45
+2018,D5: Bauen & Verkehr,Tiefbauamt,Erträge,20630239.0
+2018,D5: Bauen & Verkehr,Tiefbauamt,Aufwendungen,59415777.74
+2018,D5: Bauen & Verkehr,Gebäudemanagement,Erträge,88247912.54
+2018,D5: Bauen & Verkehr,Gebäudemanagement,Aufwendungen,24761685.0
+2018,D6: Umwelt & Klimaschutz,Umweltamt,Erträge,52244328.61
+2018,D6: Umwelt & Klimaschutz,Umweltamt,Aufwendungen,9462959.57
+2018,D6: Umwelt & Klimaschutz,Grünflächenamt,Erträge,10562092.22
+2018,D6: Umwelt & Klimaschutz,Grünflächenamt,Aufwendungen,95376665.26
+2018,D6: Umwelt & Klimaschutz,Abfallwirtschaft,Erträge,30664016.37
+2018,D6: Umwelt & Klimaschutz,Abfallwirtschaft,Aufwendungen,7074387.72
+2019,D1: Bürgermeisteramt,Personal,Erträge,101216797.75
+2019,D1: Bürgermeisteramt,Personal,Aufwendungen,73252353.73
+2019,D1: Bürgermeisteramt,Organisation,Erträge,49664065.77
+2019,D1: Bürgermeisteramt,Organisation,Aufwendungen,86984797.74
+2019,D1: Bürgermeisteramt,Presse,Erträge,57824025.23
+2019,D1: Bürgermeisteramt,Presse,Aufwendungen,43201187.59
+2019,D2: Finanzen & Sicherheit,Kämmerei,Erträge,738871013.54
+2019,D2: Finanzen & Sicherheit,Kämmerei,Aufwendungen,36998132.85
+2019,D2: Finanzen & Sicherheit,Feuerwehr,Erträge,79221208.94
+2019,D2: Finanzen & Sicherheit,Feuerwehr,Aufwendungen,101035937.9
+2019,D2: Finanzen & Sicherheit,Bürgeramt,Erträge,42804471.76
+2019,D2: Finanzen & Sicherheit,Bürgeramt,Aufwendungen,87245270.55
+2019,D3: Kultur & Bürgerservice,Kulturamt,Erträge,31205621.18
+2019,D3: Kultur & Bürgerservice,Kulturamt,Aufwendungen,47051244.15
+2019,D3: Kultur & Bürgerservice,Theater,Erträge,30704696.47
+2019,D3: Kultur & Bürgerservice,Theater,Aufwendungen,86104031.59
+2019,D3: Kultur & Bürgerservice,Musikschule,Erträge,34861363.67
+2019,D3: Kultur & Bürgerservice,Musikschule,Aufwendungen,42288814.8
+2019,"D4: Soziales, Bildung & Familie",Sozialamt,Erträge,49756886.76
+2019,"D4: Soziales, Bildung & Familie",Sozialamt,Aufwendungen,454510040.15
+2019,"D4: Soziales, Bildung & Familie",Jugendamt,Erträge,45294067.4
+2019,"D4: Soziales, Bildung & Familie",Jugendamt,Aufwendungen,42786821.33
+2019,"D4: Soziales, Bildung & Familie",Schulverwaltungsamt,Erträge,81546429.29
+2019,"D4: Soziales, Bildung & Familie",Schulverwaltungsamt,Aufwendungen,23343187.05
+2019,D5: Bauen & Verkehr,Stadtplanungsamt,Erträge,63890676.3
+2019,D5: Bauen & Verkehr,Stadtplanungsamt,Aufwendungen,34749307.39
+2019,D5: Bauen & Verkehr,Tiefbauamt,Erträge,97284594.46
+2019,D5: Bauen & Verkehr,Tiefbauamt,Aufwendungen,7778723.24
+2019,D5: Bauen & Verkehr,Gebäudemanagement,Erträge,78561668.52
+2019,D5: Bauen & Verkehr,Gebäudemanagement,Aufwendungen,33076749.5
+2019,D6: Umwelt & Klimaschutz,Umweltamt,Erträge,13787919.79
+2019,D6: Umwelt & Klimaschutz,Umweltamt,Aufwendungen,81747400.04
+2019,D6: Umwelt & Klimaschutz,Grünflächenamt,Erträge,102287945.26
+2019,D6: Umwelt & Klimaschutz,Grünflächenamt,Aufwendungen,67078131.75
+2019,D6: Umwelt & Klimaschutz,Abfallwirtschaft,Erträge,79434474.51
+2019,D6: Umwelt & Klimaschutz,Abfallwirtschaft,Aufwendungen,65857084.65
+2020,D1: Bürgermeisteramt,Personal,Erträge,104146630.74
+2020,D1: Bürgermeisteramt,Personal,Aufwendungen,60406398.22
+2020,D1: Bürgermeisteramt,Organisation,Erträge,5962267.94
+2020,D1: Bürgermeisteramt,Organisation,Aufwendungen,90871645.16
+2020,D1: Bürgermeisteramt,Presse,Erträge,8833008.32
+2020,D1: Bürgermeisteramt,Presse,Aufwendungen,59253620.16
+2020,D2: Finanzen & Sicherheit,Kämmerei,Erträge,645004321.0
+2020,D2: Finanzen & Sicherheit,Kämmerei,Aufwendungen,43337240.78
+2020,D2: Finanzen & Sicherheit,Feuerwehr,Erträge,40424036.97
+2020,D2: Finanzen & Sicherheit,Feuerwehr,Aufwendungen,42340709.14
+2020,D2: Finanzen & Sicherheit,Bürgeramt,Erträge,73633327.08
+2020,D2: Finanzen & Sicherheit,Bürgeramt,Aufwendungen,70656863.49
+2020,D3: Kultur & Bürgerservice,Kulturamt,Erträge,53543411.72
+2020,D3: Kultur & Bürgerservice,Kulturamt,Aufwendungen,68945559.22
+2020,D3: Kultur & Bürgerservice,Theater,Erträge,69161326.2
+2020,D3: Kultur & Bürgerservice,Theater,Aufwendungen,51300429.86
+2020,D3: Kultur & Bürgerservice,Musikschule,Erträge,3967221.09
+2020,D3: Kultur & Bürgerservice,Musikschule,Aufwendungen,69185940.4
+2020,"D4: Soziales, Bildung & Familie",Sozialamt,Erträge,61460030.12
+2020,"D4: Soziales, Bildung & Familie",Sozialamt,Aufwendungen,407276179.45
+2020,"D4: Soziales, Bildung & Familie",Jugendamt,Erträge,88466741.49
+2020,"D4: Soziales, Bildung & Familie",Jugendamt,Aufwendungen,80324389.86
+2020,"D4: Soziales, Bildung & Familie",Schulverwaltungsamt,Erträge,50810850.46
+2020,"D4: Soziales, Bildung & Familie",Schulverwaltungsamt,Aufwendungen,3108037.46
+2020,D5: Bauen & Verkehr,Stadtplanungsamt,Erträge,96710292.34
+2020,D5: Bauen & Verkehr,Stadtplanungsamt,Aufwendungen,95574562.41
+2020,D5: Bauen & Verkehr,Tiefbauamt,Erträge,55428199.88
+2020,D5: Bauen & Verkehr,Tiefbauamt,Aufwendungen,96845400.56
+2020,D5: Bauen & Verkehr,Gebäudemanagement,Erträge,88381072.81
+2020,D5: Bauen & Verkehr,Gebäudemanagement,Aufwendungen,56815673.1
+2020,D6: Umwelt & Klimaschutz,Umweltamt,Erträge,41229302.9
+2020,D6: Umwelt & Klimaschutz,Umweltamt,Aufwendungen,70576603.84
+2020,D6: Umwelt & Klimaschutz,Grünflächenamt,Erträge,10638076.82
+2020,D6: Umwelt & Klimaschutz,Grünflächenamt,Aufwendungen,77391884.68
+2020,D6: Umwelt & Klimaschutz,Abfallwirtschaft,Erträge,15951532.96
+2020,D6: Umwelt & Klimaschutz,Abfallwirtschaft,Aufwendungen,84247536.67
+2021,D1: Bürgermeisteramt,Personal,Erträge,99901989.48
+2021,D1: Bürgermeisteramt,Personal,Aufwendungen,38080549.11
+2021,D1: Bürgermeisteramt,Organisation,Erträge,21623774.33
+2021,D1: Bürgermeisteramt,Organisation,Aufwendungen,78386031.01
+2021,D1: Bürgermeisteramt,Presse,Erträge,76684905.62
+2021,D1: Bürgermeisteramt,Presse,Aufwendungen,87793265.66
+2021,D2: Finanzen & Sicherheit,Kämmerei,Erträge,396606621.25
+2021,D2: Finanzen & Sicherheit,Kämmerei,Aufwendungen,51561187.53
+2021,D2: Finanzen & Sicherheit,Feuerwehr,Erträge,63071310.39
+2021,D2: Finanzen & Sicherheit,Feuerwehr,Aufwendungen,61704405.91
+2021,D2: Finanzen & Sicherheit,Bürgeramt,Erträge,91849811.22
+2021,D2: Finanzen & Sicherheit,Bürgeramt,Aufwendungen,23417642.77
+2021,D3: Kultur & Bürgerservice,Kulturamt,Erträge,78131105.23
+2021,D3: Kultur & Bürgerservice,Kulturamt,Aufwendungen,79025677.74
+2021,D3: Kultur & Bürgerservice,Theater,Erträge,20800190.04
+2021,D3: Kultur & Bürgerservice,Theater,Aufwendungen,61487965.18
+2021,D3: Kultur & Bürgerservice,Musikschule,Erträge,47614238.15
+2021,D3: Kultur & Bürgerservice,Musikschule,Aufwendungen,57848821.81
+2021,"D4: Soziales, Bildung & Familie",Sozialamt,Erträge,96408086.81
+2021,"D4: Soziales, Bildung & Familie",Sozialamt,Aufwendungen,445453781.07
+2021,"D4: Soziales, Bildung & Familie",Jugendamt,Erträge,17851584.16
+2021,"D4: Soziales, Bildung & Familie",Jugendamt,Aufwendungen,67700322.4
+2021,"D4: Soziales, Bildung & Familie",Schulverwaltungsamt,Erträge,103913826.25
+2021,"D4: Soziales, Bildung & Familie",Schulverwaltungsamt,Aufwendungen,25847035.45
+2021,D5: Bauen & Verkehr,Stadtplanungsamt,Erträge,4842983.88
+2021,D5: Bauen & Verkehr,Stadtplanungsamt,Aufwendungen,87942634.75
+2021,D5: Bauen & Verkehr,Tiefbauamt,Erträge,84774577.06
+2021,D5: Bauen & Verkehr,Tiefbauamt,Aufwendungen,86737724.26
+2021,D5: Bauen & Verkehr,Gebäudemanagement,Erträge,35623960.48
+2021,D5: Bauen & Verkehr,Gebäudemanagement,Aufwendungen,61948211.21
+2021,D6: Umwelt & Klimaschutz,Umweltamt,Erträge,69902983.32
+2021,D6: Umwelt & Klimaschutz,Umweltamt,Aufwendungen,81865842.61
+2021,D6: Umwelt & Klimaschutz,Grünflächenamt,Erträge,91402414.99
+2021,D6: Umwelt & Klimaschutz,Grünflächenamt,Aufwendungen,78857309.19
+2021,D6: Umwelt & Klimaschutz,Abfallwirtschaft,Erträge,79922522.19
+2021,D6: Umwelt & Klimaschutz,Abfallwirtschaft,Aufwendungen,68521067.4
+2022,D1: Bürgermeisteramt,Personal,Erträge,24329210.17
+2022,D1: Bürgermeisteramt,Personal,Aufwendungen,85729431.71
+2022,D1: Bürgermeisteramt,Organisation,Erträge,12652064.27
+2022,D1: Bürgermeisteramt,Organisation,Aufwendungen,21596518.21
+2022,D1: Bürgermeisteramt,Presse,Erträge,3824571.13
+2022,D1: Bürgermeisteramt,Presse,Aufwendungen,28547350.04
+2022,D2: Finanzen & Sicherheit,Kämmerei,Erträge,954322497.19
+2022,D2: Finanzen & Sicherheit,Kämmerei,Aufwendungen,39186173.85
+2022,D2: Finanzen & Sicherheit,Feuerwehr,Erträge,26493636.11
+2022,D2: Finanzen & Sicherheit,Feuerwehr,Aufwendungen,94710774.77
+2022,D2: Finanzen & Sicherheit,Bürgeramt,Erträge,91370090.28
+2022,D2: Finanzen & Sicherheit,Bürgeramt,Aufwendungen,15724172.89
+2022,D3: Kultur & Bürgerservice,Kulturamt,Erträge,52644622.02
+2022,D3: Kultur & Bürgerservice,Kulturamt,Aufwendungen,96222954.71
+2022,D3: Kultur & Bürgerservice,Theater,Erträge,6590063.82
+2022,D3: Kultur & Bürgerservice,Theater,Aufwendungen,19701807.0
+2022,D3: Kultur & Bürgerservice,Musikschule,Erträge,78459218.57
+2022,D3: Kultur & Bürgerservice,Musikschule,Aufwendungen,50977413.63
+2022,"D4: Soziales, Bildung & Familie",Sozialamt,Erträge,112571528.64
+2022,"D4: Soziales, Bildung & Familie",Sozialamt,Aufwendungen,495467111.77
+2022,"D4: Soziales, Bildung & Familie",Jugendamt,Erträge,57446219.72
+2022,"D4: Soziales, Bildung & Familie",Jugendamt,Aufwendungen,72443149.32
+2022,"D4: Soziales, Bildung & Familie",Schulverwaltungsamt,Erträge,6899181.48
+2022,"D4: Soziales, Bildung & Familie",Schulverwaltungsamt,Aufwendungen,80300236.04
+2022,D5: Bauen & Verkehr,Stadtplanungsamt,Erträge,51869085.33
+2022,D5: Bauen & Verkehr,Stadtplanungsamt,Aufwendungen,64806772.23
+2022,D5: Bauen & Verkehr,Tiefbauamt,Erträge,63959887.28
+2022,D5: Bauen & Verkehr,Tiefbauamt,Aufwendungen,29658527.28
+2022,D5: Bauen & Verkehr,Gebäudemanagement,Erträge,23977408.92
+2022,D5: Bauen & Verkehr,Gebäudemanagement,Aufwendungen,1282162.26
+2022,D6: Umwelt & Klimaschutz,Umweltamt,Erträge,60414818.77
+2022,D6: Umwelt & Klimaschutz,Umweltamt,Aufwendungen,24666750.36
+2022,D6: Umwelt & Klimaschutz,Grünflächenamt,Erträge,16616448.36
+2022,D6: Umwelt & Klimaschutz,Grünflächenamt,Aufwendungen,47565348.78
+2022,D6: Umwelt & Klimaschutz,Abfallwirtschaft,Erträge,21578690.61
+2022,D6: Umwelt & Klimaschutz,Abfallwirtschaft,Aufwendungen,86749110.59
+2023,D1: Bürgermeisteramt,Personal,Erträge,50667965.75
+2023,D1: Bürgermeisteramt,Personal,Aufwendungen,18687122.01
+2023,D1: Bürgermeisteramt,Organisation,Erträge,95856706.15
+2023,D1: Bürgermeisteramt,Organisation,Aufwendungen,49944765.86
+2023,D1: Bürgermeisteramt,Presse,Erträge,62011025.71
+2023,D1: Bürgermeisteramt,Presse,Aufwendungen,94370264.98
+2023,D2: Finanzen & Sicherheit,Kämmerei,Erträge,448785433.36
+2023,D2: Finanzen & Sicherheit,Kämmerei,Aufwendungen,23687080.82
+2023,D2: Finanzen & Sicherheit,Feuerwehr,Erträge,16654090.1
+2023,D2: Finanzen & Sicherheit,Feuerwehr,Aufwendungen,74987518.39
+2023,D2: Finanzen & Sicherheit,Bürgeramt,Erträge,76928893.52
+2023,D2: Finanzen & Sicherheit,Bürgeramt,Aufwendungen,6549498.78
+2023,D3: Kultur & Bürgerservice,Kulturamt,Erträge,10586346.07
+2023,D3: Kultur & Bürgerservice,Kulturamt,Aufwendungen,56864979.54
+2023,D3: Kultur & Bürgerservice,Theater,Erträge,11735894.11
+2023,D3: Kultur & Bürgerservice,Theater,Aufwendungen,80121718.72
+2023,D3: Kultur & Bürgerservice,Musikschule,Erträge,26709280.9
+2023,D3: Kultur & Bürgerservice,Musikschule,Aufwendungen,7052347.53
+2023,"D4: Soziales, Bildung & Familie",Sozialamt,Erträge,101843861.02
+2023,"D4: Soziales, Bildung & Familie",Sozialamt,Aufwendungen,525061341.65
+2023,"D4: Soziales, Bildung & Familie",Jugendamt,Erträge,39996121.89
+2023,"D4: Soziales, Bildung & Familie",Jugendamt,Aufwendungen,113418028.85
+2023,"D4: Soziales, Bildung & Familie",Schulverwaltungsamt,Erträge,29062133.26
+2023,"D4: Soziales, Bildung & Familie",Schulverwaltungsamt,Aufwendungen,32576077.3
+2023,D5: Bauen & Verkehr,Stadtplanungsamt,Erträge,56083059.01
+2023,D5: Bauen & Verkehr,Stadtplanungsamt,Aufwendungen,26252596.41
+2023,D5: Bauen & Verkehr,Tiefbauamt,Erträge,53414194.2
+2023,D5: Bauen & Verkehr,Tiefbauamt,Aufwendungen,27961753.18
+2023,D5: Bauen & Verkehr,Gebäudemanagement,Erträge,37969180.03
+2023,D5: Bauen & Verkehr,Gebäudemanagement,Aufwendungen,7168475.55
+2023,D6: Umwelt & Klimaschutz,Umweltamt,Erträge,62227779.29
+2023,D6: Umwelt & Klimaschutz,Umweltamt,Aufwendungen,111230475.39
+2023,D6: Umwelt & Klimaschutz,Grünflächenamt,Erträge,116109302.57
+2023,D6: Umwelt & Klimaschutz,Grünflächenamt,Aufwendungen,9397924.85
+2023,D6: Umwelt & Klimaschutz,Abfallwirtschaft,Erträge,13906681.42
+2023,D6: Umwelt & Klimaschutz,Abfallwirtschaft,Aufwendungen,32988894.25
+2024,D1: Bürgermeisteramt,Personal,Erträge,15330318.91
+2024,D1: Bürgermeisteramt,Personal,Aufwendungen,41901255.51
+2024,D1: Bürgermeisteramt,Organisation,Erträge,96337557.64
+2024,D1: Bürgermeisteramt,Organisation,Aufwendungen,77920786.22
+2024,D1: Bürgermeisteramt,Presse,Erträge,93756111.22
+2024,D1: Bürgermeisteramt,Presse,Aufwendungen,114810530.35
+2024,D2: Finanzen & Sicherheit,Kämmerei,Erträge,773750814.37
+2024,D2: Finanzen & Sicherheit,Kämmerei,Aufwendungen,35244271.98
+2024,D2: Finanzen & Sicherheit,Feuerwehr,Erträge,11616923.36
+2024,D2: Finanzen & Sicherheit,Feuerwehr,Aufwendungen,105080655.8
+2024,D2: Finanzen & Sicherheit,Bürgeramt,Erträge,95809308.09
+2024,D2: Finanzen & Sicherheit,Bürgeramt,Aufwendungen,110430258.32
+2024,D3: Kultur & Bürgerservice,Kulturamt,Erträge,70988039.65
+2024,D3: Kultur & Bürgerservice,Kulturamt,Aufwendungen,39569865.05
+2024,D3: Kultur & Bürgerservice,Theater,Erträge,85941691.7
+2024,D3: Kultur & Bürgerservice,Theater,Aufwendungen,48666190.52
+2024,D3: Kultur & Bürgerservice,Musikschule,Erträge,20097227.08
+2024,D3: Kultur & Bürgerservice,Musikschule,Aufwendungen,50208416.98
+2024,"D4: Soziales, Bildung & Familie",Sozialamt,Erträge,75554638.02
+2024,"D4: Soziales, Bildung & Familie",Sozialamt,Aufwendungen,460289382.26
+2024,"D4: Soziales, Bildung & Familie",Jugendamt,Erträge,23727744.64
+2024,"D4: Soziales, Bildung & Familie",Jugendamt,Aufwendungen,71968242.03
+2024,"D4: Soziales, Bildung & Familie",Schulverwaltungsamt,Erträge,68043897.3
+2024,"D4: Soziales, Bildung & Familie",Schulverwaltungsamt,Aufwendungen,72978165.07
+2024,D5: Bauen & Verkehr,Stadtplanungsamt,Erträge,14689033.75
+2024,D5: Bauen & Verkehr,Stadtplanungsamt,Aufwendungen,10158657.21
+2024,D5: Bauen & Verkehr,Tiefbauamt,Erträge,54865489.9
+2024,D5: Bauen & Verkehr,Tiefbauamt,Aufwendungen,24150350.0
+2024,D5: Bauen & Verkehr,Gebäudemanagement,Erträge,99746167.95
+2024,D5: Bauen & Verkehr,Gebäudemanagement,Aufwendungen,30639490.42
+2024,D6: Umwelt & Klimaschutz,Umweltamt,Erträge,61031842.61
+2024,D6: Umwelt & Klimaschutz,Umweltamt,Aufwendungen,59744602.65
+2024,D6: Umwelt & Klimaschutz,Grünflächenamt,Erträge,78036337.9
+2024,D6: Umwelt & Klimaschutz,Grünflächenamt,Aufwendungen,97486606.68
+2024,D6: Umwelt & Klimaschutz,Abfallwirtschaft,Erträge,60327718.86
+2024,D6: Umwelt & Klimaschutz,Abfallwirtschaft,Aufwendungen,76863891.25
+2025,D1: Bürgermeisteramt,Personal,Erträge,39205945.52
+2025,D1: Bürgermeisteramt,Personal,Aufwendungen,3637051.01
+2025,D1: Bürgermeisteramt,Organisation,Erträge,62577912.3
+2025,D1: Bürgermeisteramt,Organisation,Aufwendungen,99481940.98
+2025,D1: Bürgermeisteramt,Presse,Erträge,35969046.28
+2025,D1: Bürgermeisteramt,Presse,Aufwendungen,7868375.61
+2025,D2: Finanzen & Sicherheit,Kämmerei,Erträge,677475464.75
+2025,D2: Finanzen & Sicherheit,Kämmerei,Aufwendungen,118337572.03
+2025,D2: Finanzen & Sicherheit,Feuerwehr,Erträge,56257962.02
+2025,D2: Finanzen & Sicherheit,Feuerwehr,Aufwendungen,58119913.75
+2025,D2: Finanzen & Sicherheit,Bürgeramt,Erträge,77033820.24
+2025,D2: Finanzen & Sicherheit,Bürgeramt,Aufwendungen,48327289.05
+2025,D3: Kultur & Bürgerservice,Kulturamt,Erträge,19150229.38
+2025,D3: Kultur & Bürgerservice,Kulturamt,Aufwendungen,1664515.62
+2025,D3: Kultur & Bürgerservice,Theater,Erträge,108178459.53
+2025,D3: Kultur & Bürgerservice,Theater,Aufwendungen,82773521.61
+2025,D3: Kultur & Bürgerservice,Musikschule,Erträge,71850043.39
+2025,D3: Kultur & Bürgerservice,Musikschule,Aufwendungen,74375307.18
+2025,"D4: Soziales, Bildung & Familie",Sozialamt,Erträge,58581745.43
+2025,"D4: Soziales, Bildung & Familie",Sozialamt,Aufwendungen,445393701.25
+2025,"D4: Soziales, Bildung & Familie",Jugendamt,Erträge,92376937.48
+2025,"D4: Soziales, Bildung & Familie",Jugendamt,Aufwendungen,5460019.24
+2025,"D4: Soziales, Bildung & Familie",Schulverwaltungsamt,Erträge,26141306.91
+2025,"D4: Soziales, Bildung & Familie",Schulverwaltungsamt,Aufwendungen,15911072.92
+2025,D5: Bauen & Verkehr,Stadtplanungsamt,Erträge,92831869.77
+2025,D5: Bauen & Verkehr,Stadtplanungsamt,Aufwendungen,4091703.6
+2025,D5: Bauen & Verkehr,Tiefbauamt,Erträge,107280676.0
+2025,D5: Bauen & Verkehr,Tiefbauamt,Aufwendungen,16259209.43
+2025,D5: Bauen & Verkehr,Gebäudemanagement,Erträge,123511024.82
+2025,D5: Bauen & Verkehr,Gebäudemanagement,Aufwendungen,23001555.67
+2025,D6: Umwelt & Klimaschutz,Umweltamt,Erträge,48010721.34
+2025,D6: Umwelt & Klimaschutz,Umweltamt,Aufwendungen,96074005.28
+2025,D6: Umwelt & Klimaschutz,Grünflächenamt,Erträge,42810242.18
+2025,D6: Umwelt & Klimaschutz,Grünflächenamt,Aufwendungen,25793462.02
+2025,D6: Umwelt & Klimaschutz,Abfallwirtschaft,Erträge,52043465.82
+2025,D6: Umwelt & Klimaschutz,Abfallwirtschaft,Aufwendungen,63251667.81
+2026,D1: Bürgermeisteramt,Personal,Erträge,28393698.86
+2026,D1: Bürgermeisteramt,Personal,Aufwendungen,14886965.53
+2026,D1: Bürgermeisteramt,Organisation,Erträge,59508455.32
+2026,D1: Bürgermeisteramt,Organisation,Aufwendungen,47421746.32
+2026,D1: Bürgermeisteramt,Presse,Erträge,74509725.58
+2026,D1: Bürgermeisteramt,Presse,Aufwendungen,9014802.35
+2026,D2: Finanzen & Sicherheit,Kämmerei,Erträge,202616703.89
+2026,D2: Finanzen & Sicherheit,Kämmerei,Aufwendungen,65356957.34
+2026,D2: Finanzen & Sicherheit,Feuerwehr,Erträge,43325313.35
+2026,D2: Finanzen & Sicherheit,Feuerwehr,Aufwendungen,88565096.26
+2026,D2: Finanzen & Sicherheit,Bürgeramt,Erträge,25495023.28
+2026,D2: Finanzen & Sicherheit,Bürgeramt,Aufwendungen,66998648.47
+2026,D3: Kultur & Bürgerservice,Kulturamt,Erträge,91988498.12
+2026,D3: Kultur & Bürgerservice,Kulturamt,Aufwendungen,107470851.65
+2026,D3: Kultur & Bürgerservice,Theater,Erträge,55914434.36
+2026,D3: Kultur & Bürgerservice,Theater,Aufwendungen,84501057.73
+2026,D3: Kultur & Bürgerservice,Musikschule,Erträge,13179228.6
+2026,D3: Kultur & Bürgerservice,Musikschule,Aufwendungen,25439357.41
+2026,"D4: Soziales, Bildung & Familie",Sozialamt,Erträge,100952969.16
+2026,"D4: Soziales, Bildung & Familie",Sozialamt,Aufwendungen,609570098.63
+2026,"D4: Soziales, Bildung & Familie",Jugendamt,Erträge,67418354.16
+2026,"D4: Soziales, Bildung & Familie",Jugendamt,Aufwendungen,29075580.95
+2026,"D4: Soziales, Bildung & Familie",Schulverwaltungsamt,Erträge,62596876.32
+2026,"D4: Soziales, Bildung & Familie",Schulverwaltungsamt,Aufwendungen,7795140.78
+2026,D5: Bauen & Verkehr,Stadtplanungsamt,Erträge,52823424.25
+2026,D5: Bauen & Verkehr,Stadtplanungsamt,Aufwendungen,72879998.16
+2026,D5: Bauen & Verkehr,Tiefbauamt,Erträge,52380331.44
+2026,D5: Bauen & Verkehr,Tiefbauamt,Aufwendungen,75994352.29
+2026,D5: Bauen & Verkehr,Gebäudemanagement,Erträge,25795817.31
+2026,D5: Bauen & Verkehr,Gebäudemanagement,Aufwendungen,89598533.0
+2026,D6: Umwelt & Klimaschutz,Umweltamt,Erträge,14339173.46
+2026,D6: Umwelt & Klimaschutz,Umweltamt,Aufwendungen,46398480.24
+2026,D6: Umwelt & Klimaschutz,Grünflächenamt,Erträge,10117751.97
+2026,D6: Umwelt & Klimaschutz,Grünflächenamt,Aufwendungen,30454016.5
+2026,D6: Umwelt & Klimaschutz,Abfallwirtschaft,Erträge,46647739.92
+2026,D6: Umwelt & Klimaschutz,Abfallwirtschaft,Aufwendungen,100174835.2
