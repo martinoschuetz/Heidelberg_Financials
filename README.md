@@ -1,6 +1,13 @@
 # 🏛️ Haushalt & Finanzen der Stadt Heidelberg — Interaktiver Explorer & PDF-Analyse-Pipeline (2013–2029)
 
-Interaktive Datenanalyse-Plattform (Streamlit + Plotly + AgGrid) und automatisierte PDF-Extraktions-Pipeline für die offiziellen Doppelhaushaltspläne, Nachtragshaushalte, Jahresabschlüsse, Schlussbilanzen, Stellenpläne und Beteiligungsberichte der **Stadt Heidelberg** über den Zeitraum **2013 bis 2029**.
+[![🌐 Live Interactive Report (GitHub Pages)](https://img.shields.io/badge/%F0%9F%8C%90_Live_Interactive_Report-GitHub_Pages_(Zero--Install)-1d4ed8?style=for-the-badge)](https://martinoschuetz.github.io/Heidelberg_Financials/)
+[![📂 GitHub Repository](https://img.shields.io/badge/GitHub-martinoschuetz%2FHeidelberg__Financials-0f172a?style=for-the-badge&logo=github)](https://github.com/martinoschuetz/Heidelberg_Financials)
+
+> **🌐 Direkt im Browser öffnen (ohne Python-Installation):**  
+> 👉 **[https://martinoschuetz.github.io/Heidelberg_Financials/](https://martinoschuetz.github.io/Heidelberg_Financials/)**  
+> *(Vollständiges interaktives HTML/Plotly-Dashboard mit allen 5 Analyse-Tabs, Jahres-/Amts-Filtern, Volltextsuche und CSV-Export)*
+
+Interaktive Datenanalyse-Plattform (Streamlit + Plotly + AgGrid sowie eigenständiges GitHub-Pages-Web-Dashboard) und automatisierte PDF-Extraktions-Pipeline für die offiziellen Doppelhaushaltspläne, Nachtragshaushalte, Jahresabschlüsse, Schlussbilanzen, Stellenpläne und Beteiligungsberichte der **Stadt Heidelberg** über den Zeitraum **2013 bis 2029**.
 
 Die Pipeline extrahiert und rekonsiliiert:
 1. **Alle 41 Ämter / Teilhaushalte (2013–2026)** (`TH 01 Referat des Oberbürgermeisters` bis `TH FW Allgemeine Finanzwirtschaft`) inklusive aller untergeordneten **Erläuterungs-Einzelposten** (**`8.539` Einzelpositionen**).
