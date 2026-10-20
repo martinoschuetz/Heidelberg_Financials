@@ -62,6 +62,30 @@ def short_amt(amt: str) -> str:
     return s[:36] + "…"
 
 
+EUR_FORMATTER = JsCode(
+    """
+    function(params) {
+        if (params.value === undefined || params.value === null) return '';
+        return Number(params.value).toLocaleString('de-DE', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }) + ' €';
+    }
+    """
+)
+PCT_FORMATTER = JsCode(
+    """
+    function(params) {
+        if (params.value === undefined || params.value === null) return '';
+        return Number(params.value).toLocaleString('de-DE', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }) + ' %';
+    }
+    """
+)
+
+
 @st.cache_data
 def load_data() -> pd.DataFrame:
     try:
@@ -88,7 +112,27 @@ def load_data() -> pd.DataFrame:
         .str.strip()
         .replace({"": "Allgemein"})
     )
+    # Pre-compute derived string columns once in cache for O(1) filtering & rendering
+    df["Amt_Kurz"] = df["Amt"].map(short_amt)
+    df["Sub_Label"] = np.where(
+        df["Sub_Kategorie"] == df["Kategorie"],
+        df["Sub_Kategorie"] + " (Gesamtposition)",
+        df["Sub_Kategorie"],
+    )
+    df["Search_Blob"] = (
+        df["Amt"].str.lower()
+        + " "
+        + df["Kategorie"].str.lower()
+        + " "
+        + df["Sub_Kategorie"].str.lower()
+    )
     return df
+
+
+@st.cache_data
+def load_data_by_year() -> dict[int, pd.DataFrame]:
+    base_df = load_data()
+    return {int(yr): grp.copy() for yr, grp in base_df.groupby("Jahr")}
 
 
 @st.cache_data
@@ -105,6 +149,10 @@ def load_supplementary_datasets() -> dict:
         "bilanz": "heidelberg_bilanz_2015_2024.csv",
         "vorbelastungen": "heidelberg_vorbelastungen.csv",
         "beteiligungen": "heidelberg_beteiligungen.csv",
+        "steuern": "heidelberg_steuern_kennzahlen.csv",
+        "hebesaetze": "heidelberg_hebesaetze_bw.csv",
+        "investitionen": "heidelberg_investitionen_2024_2029.csv",
+        "antraege": "heidelberg_aenderungsantraege_2025_26.csv",
     }
     for key, fname in csv_files.items():
         fpath = DATA_DIR / fname
@@ -116,6 +164,7 @@ def load_supplementary_datasets() -> dict:
 
 
 df = load_data()
+df_by_year = load_data_by_year()
 supp = load_supplementary_datasets()
 
 YEAR_STATUS = {
@@ -135,7 +184,7 @@ YEAR_STATUS = {
     2026: "Plan (HH 25/26) / 1. Nachtrag in Tab 4",
 }
 
-valid_years = sorted(df["Jahr"].unique(), reverse=True)
+valid_years = sorted(df_by_year.keys(), reverse=True)
 default_year_idx = valid_years.index(2025) if 2025 in valid_years else 0
 
 # --- SIDEBAR FILTERS ---
@@ -161,7 +210,8 @@ chart_type = st.sidebar.segmented_control(
     default="Treemap (Kacheln)",
 )
 
-all_aemter_for_year = sorted(df[df["Jahr"] == selected_year]["Amt"].unique().tolist())
+year_base_df = df_by_year.get(selected_year, pd.DataFrame())
+all_aemter_for_year = sorted(year_base_df["Amt"].unique().tolist()) if not year_base_df.empty else []
 selected_aemter = st.sidebar.multiselect(
     "Ämter / Teilhaushalte filtern (optional)",
     options=all_aemter_for_year,
@@ -177,43 +227,35 @@ search_query = st.sidebar.text_input(
 
 st.sidebar.markdown("---")
 st.sidebar.caption(
-    f"**Datenbasis (16 PDFs, 2013–2029):**\n"
+    f"**Datenbasis (15 PDFs & heidelberg.de, 2013–2029):**\n"
     f"- Doppelhaushalte **2013–2026** (**{df['Amt'].nunique()} Teilhaushalte**, **{len(df):,} Einzelpositionen**)\n"
-    f"- **1. Nachtragshaushalt 2026** (Beschluss 18.12.2025 inkl. Finanzplanung **bis 2029**)\n"
-    f"- **Jahresabschlüsse 2023 & 2024** inkl. **10-Jahres-Bilanz (2015–2024)**, Stellenplan & Beteiligungen."
+    f"- **1. Nachtragshaushalt 2026** (Beschluss 18.12.2025 + Okt-2026-Prognose & Finanzplan **bis 2029**)\n"
+    f"- **Jahresabschlüsse 2023 & 2024** inkl. **10-Jahres-Bilanz (2015–2024)**, Stellenplan (2.658 VZÄ), Investitionsprogramm & 359 Gemeinderat-Anträge."
 )
 
 # --- HEADER ---
 st.title("🏛️ Haushalt & Finanzen der Stadt Heidelberg — Explorer (2013–2029)")
 st.markdown(
-    "Umfassende Analyse aller **Teilhaushalte (2013–2026)**, des **1. Nachtragshaushalts 2026 (Konsolidierungspaket +42,0 Mio. €)**, "
-    "der **Mittelfristigen Finanzplanung bis 2029**, des geprüften **Jahresabschlusses 2024**, der **10-Jahres-Schlussbilanz (1,78 Mrd. €)** "
-    "sowie der **städtischen Gesellschaften & Eigenbetriebe**."
+    "Umfassende Analyse aller **Teilhaushalte (2013–2026)**, des **1. Nachtragshaushalts 2026 (+42,04 Mio. € Konsolidierung & Okt-2026-Prognose)**, "
+    "der **Mittelfristigen Finanzplanung bis 2029**, des geprüften **Jahresabschlusses 2024**, der **10-Jahres-Schlussbilanz (1,78 Mrd. €)**, "
+    "des **Investitionsprogramms 2024–2029**, der **Hebesätze im BW-Städtevergleich** sowie aller **359 Gemeinderat-Änderungsanträge**."
 )
 
 # --- GLOBAL KPI METRICS FOR SELECTED YEAR ---
-year_df = df[df["Jahr"] == selected_year]
+year_df = year_base_df
 if selected_aemter:
     year_df = year_df[year_df["Amt"].isin(selected_aemter)]
 if search_query.strip():
     q = search_query.strip().lower()
-    year_df = year_df[
-        year_df["Amt"].str.lower().str.contains(q, na=False)
-        | year_df["Kategorie"].str.lower().str.contains(q, na=False)
-        | year_df["Sub_Kategorie"].str.lower().str.contains(q, na=False)
-    ]
+    year_df = year_df[year_df["Search_Blob"].str.contains(q, regex=False, na=False)]
 
 prev_year = selected_year - 1
-prev_df = df[df["Jahr"] == prev_year] if prev_year in valid_years else pd.DataFrame()
+prev_df = df_by_year.get(prev_year, pd.DataFrame())
 if not prev_df.empty and selected_aemter:
     prev_df = prev_df[prev_df["Amt"].isin(selected_aemter)]
 if not prev_df.empty and search_query.strip():
     q = search_query.strip().lower()
-    prev_df = prev_df[
-        prev_df["Amt"].str.lower().str.contains(q, na=False)
-        | prev_df["Kategorie"].str.lower().str.contains(q, na=False)
-        | prev_df["Sub_Kategorie"].str.lower().str.contains(q, na=False)
-    ]
+    prev_df = prev_df[prev_df["Search_Blob"].str.contains(q, regex=False, na=False)]
 
 aufw_cur = year_df[year_df["Typ"] == "Aufwendungen"]["Betrag"].sum()
 ertr_cur = year_df[year_df["Typ"] == "Erträge"]["Betrag"].sum()
@@ -269,13 +311,14 @@ with k4:
     )
 
 # --- TABS ---
-tab1, tab2, tab3, tab4, tab5 = st.tabs(
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
     [
         "🧩 Kacheln & Drill-Down (2013–26)",
         "📈 Zeitreihen & Treiber (2013–26)",
         "🏛️ Gesamthaushalt (2013–29)",
         "🚨 1. Nachtrag 2026 & Finanzplan",
         "🏦 Bilanz, JA 2024 & Konzern",
+        "🏗️ Investitionen, Steuern & Gemeinderat",
     ]
 )
 
@@ -454,29 +497,6 @@ with tab1:
         total_sel = display_df["Betrag"].sum()
         display_df["Anteil_%"] = np.where(total_sel != 0, (display_df["Betrag"] / total_sel) * 100.0, 0.0)
 
-        eur_formatter = JsCode(
-            """
-            function(params) {
-                if (params.value === undefined || params.value === null) return '';
-                return Number(params.value).toLocaleString('de-DE', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                }) + ' €';
-            }
-            """
-        )
-        pct_formatter = JsCode(
-            """
-            function(params) {
-                if (params.value === undefined || params.value === null) return '';
-                return Number(params.value).toLocaleString('de-DE', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                }) + ' %';
-            }
-            """
-        )
-
         gb = GridOptionsBuilder.from_dataframe(display_df)
         gb.configure_column("Amt", rowGroup=True, hide=True)
         gb.configure_column("Kategorie", rowGroup=True, hide=True)
@@ -486,7 +506,7 @@ with tab1:
             header_name="Betrag (EUR)",
             type=["numericColumn", "numberColumnFilter"],
             aggFunc="sum",
-            valueFormatter=eur_formatter,
+            valueFormatter=EUR_FORMATTER,
             sort="desc",
             flex=1,
         )
@@ -495,7 +515,7 @@ with tab1:
             header_name="Anteil (%)",
             type=["numericColumn", "numberColumnFilter"],
             aggFunc="sum",
-            valueFormatter=pct_formatter,
+            valueFormatter=PCT_FORMATTER,
             flex=1,
         )
 
@@ -1322,3 +1342,291 @@ with tab5:
                 template="plotly_white",
             )
             st.plotly_chart(fig_pers, use_container_width=True)
+
+
+# ==============================================================================
+# TAB 6: INVESTITIONSPROGRAMM, STEUERN/HEBESÄTZE, GEMEINDERAT & KONSISTENZ-CHECK
+# ==============================================================================
+with tab6:
+    st.subheader("🏗️ Investitionsprogramm (2024–2029), Steuern & Hebesätze im BW-Städtevergleich & Gemeinderat-Anträge")
+    st.info(
+        "**Aktuelles Update (Pressemitteilung Stadt Heidelberg vom 16.10.2026):** Die Kämmerei prognostiziert für das "
+        "laufende Haushaltsjahr 2026 ein **Gewerbesteuer-Aufkommen von 166,0 Mio. €** (+4,5 Mio. € über dem 1. Nachtragshaushalt). "
+        "Im Finanzhaushalt verbessert sich der Gesamtkapitalbedarf um **+16,4 Mio. €**, wodurch die benötigte **Netto-Neuverschuldung "
+        "2026 von 71,8 Mio. € auf 55,4 Mio. €** sinkt!"
+    )
+
+    df_steuern = supp.get("steuern", pd.DataFrame())
+    df_hebesaetze = supp.get("hebesaetze", pd.DataFrame())
+    df_invest = supp.get("investitionen", pd.DataFrame())
+    df_antraege = supp.get("antraege", pd.DataFrame())
+
+    i1, i2, i3, i4 = st.columns(4)
+    i1.metric("Gewerbesteuer 2026 (Okt-Prognose)", "166,00 Mio. €", "+4,50 Mio. € ggü. 1. Nachtrag (Hebesatz 400%)")
+    i2.metric("Grundsteuer B Hebesatz (ab 2025)", "190 v.H.", "Niedrigster Satz aller 9 BW-Stadtkreise (vorher 400%)")
+    i3.metric("Kreditbedarf 2026 (Okt-Prognose)", "55,40 Mio. €", "-16,40 Mio. € geringer als im Nachtrag (71,8 Mio. €)", delta_color="inverse")
+    i4.metric("Investitionsprogramm 2024–2029", "494,68 Mio. €", "29 Schwerpunktprojekte + SWH Wärmewende")
+
+    col_s1, col_s2 = st.columns(2)
+    with col_s1:
+        if not df_steuern.empty:
+            st_rows = df_steuern[df_steuern["Kategorie"] == "Steuererträge"].copy()
+            fig_st = go.Figure()
+            fig_st.add_trace(
+                go.Bar(
+                    y=st_rows["Position"],
+                    x=st_rows["Ist_2024"] / 1e6,
+                    name="Ist 2024",
+                    orientation="h",
+                    marker_color="#64748b",
+                )
+            )
+            fig_st.add_trace(
+                go.Bar(
+                    y=st_rows["Position"],
+                    x=st_rows["Nachtrag_2026"] / 1e6,
+                    name="1. Nachtrag 2026",
+                    orientation="h",
+                    marker_color="#2563eb",
+                )
+            )
+            fig_st.add_trace(
+                go.Bar(
+                    y=st_rows["Position"],
+                    x=st_rows["Prognose_Okt2026"] / 1e6,
+                    name="Okt-Prognose 2026",
+                    orientation="h",
+                    marker_color="#16a34a",
+                )
+            )
+            fig_st.update_layout(
+                barmode="group",
+                yaxis={"categoryorder": "total ascending", "title": ""},
+                xaxis_title="Mio. €",
+                title="Steuererträge der Stadt Heidelberg (Ist 2024 vs. Nachtrag 2026 vs. Okt-Prognose 2026)",
+                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+                height=440,
+                template="plotly_white",
+            )
+            st.plotly_chart(fig_st, use_container_width=True)
+
+    with col_s2:
+        if not df_hebesaetze.empty:
+            fig_heb = go.Figure()
+            fig_heb.add_trace(
+                go.Bar(
+                    x=df_hebesaetze["Stadtkreis"],
+                    y=df_hebesaetze["Gewerbesteuer_Prozent"],
+                    name="Gewerbesteuer (v.H.)",
+                    marker_color="#1d4ed8",
+                    text=df_hebesaetze["Gewerbesteuer_Prozent"],
+                    textposition="outside",
+                )
+            )
+            fig_heb.add_trace(
+                go.Bar(
+                    x=df_hebesaetze["Stadtkreis"],
+                    y=df_hebesaetze["Grundsteuer_B_Neu_2025_Prozent"],
+                    name="Grundsteuer B neu ab 2025 (v.H.)",
+                    marker_color="#0d9488",
+                    text=df_hebesaetze["Grundsteuer_B_Neu_2025_Prozent"],
+                    textposition="outside",
+                )
+            )
+            fig_heb.add_trace(
+                go.Scatter(
+                    x=df_hebesaetze["Stadtkreis"],
+                    y=df_hebesaetze["Grundsteuer_B_Alt_2024_Prozent"],
+                    name="Grundsteuer B alt bis 2024 (v.H.)",
+                    mode="markers+lines",
+                    line=dict(color="#dc2626", dash="dot", width=2),
+                    marker=dict(size=8),
+                )
+            )
+            fig_heb.update_layout(
+                barmode="group",
+                yaxis_title="Hebesatz in v.H. (%)",
+                xaxis_title="",
+                title="Hebesatz-Vergleich der 9 Stadtkreise in Baden-Württemberg (HP 2025/26 S. 1108)",
+                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+                height=440,
+                template="plotly_white",
+            )
+            st.plotly_chart(fig_heb, use_container_width=True)
+
+    if not df_steuern.empty:
+        with st.expander("📊 Alle Steuerpositionen, Finanzausgleich & amtliche Pro-Kopf-Kennzahlen (€/EW) anzeigen", expanded=False):
+            st.dataframe(df_steuern, use_container_width=True, height=380)
+
+    # --- INVESTITIONSPROGRAMM 2024 - 2029 ---
+    st.markdown("---")
+    st.subheader("🏗️ Schwerpunktprojekte im Investitionsprogramm 2024–2029 (1. Nachtrag 2026 S. 36–43)")
+    if not df_invest.empty:
+        col_i1, col_i2 = st.columns([1.2, 1.3])
+        with col_i1:
+            bau_df = df_invest[~df_invest["TH"].isin(["FW"])].sort_values("Gesamtkosten_TEUR", ascending=True).tail(18)
+            fig_inv = px.bar(
+                bau_df,
+                x="Gesamtkosten_TEUR",
+                y="Projekt",
+                orientation="h",
+                color="Amt",
+                custom_data=["Zuschuss_Gesamt_TEUR", "Erlaeuterung"],
+                title="Top 18 Hoch- & Tiefbauprojekte nach Gesamtkosten (in T€)",
+            )
+            fig_inv.update_traces(
+                hovertemplate="<b>%{y}</b><br>Gesamtkosten: <b>%{x:,.0f} T€</b><br>Förderung/Zuschuss: %{customdata[0]:,.0f} T€<br>%{customdata[1]}<extra></extra>"
+            )
+            fig_inv.update_layout(
+                yaxis_title="",
+                xaxis_title="Gesamtkosten (in T€)",
+                legend=dict(orientation="h", yanchor="top", y=-0.18, xanchor="left", x=0, font=dict(size=10)),
+                height=500,
+                template="plotly_white",
+            )
+            st.plotly_chart(fig_inv, use_container_width=True)
+
+        with col_i2:
+            st.dataframe(
+                df_invest.sort_values("Gesamtkosten_TEUR", ascending=False),
+                use_container_width=True,
+                height=500,
+                column_config={
+                    "Gesamtkosten_TEUR": st.column_config.NumberColumn("Gesamtkosten (T€)", format="%.0f T€"),
+                    "Auszahlung_2025_TEUR": st.column_config.NumberColumn("2025 (T€)", format="%.0f T€"),
+                    "Auszahlung_2026_TEUR": st.column_config.NumberColumn("2026 (T€)", format="%.0f T€"),
+                    "Zuschuss_Gesamt_TEUR": st.column_config.NumberColumn("Zuschuss (T€)", format="%.0f T€"),
+                },
+            )
+
+    # --- GEMEINDERAT ÄNDERUNGSANTRÄGE 2025/2026 ---
+    st.markdown("---")
+    st.subheader("🗳️ Gemeinderat-Änderungsanträge zum Doppelhaushalt 2025/2026 (359 Anträge)")
+    if not df_antraege.empty:
+        a_c1, a_c2, a_c3 = st.columns([1.2, 1.5, 1])
+        with a_c1:
+            fraktionen = ["Alle Fraktionen"] + sorted(df_antraege["Fraktion"].unique().tolist())
+            sel_frak = st.selectbox("Fraktion / Partei filtern:", fraktionen, key="ant_frak")
+        with a_c2:
+            ant_search = st.text_input(
+                "🔍 Antragstext, Maßnahme oder Teilhaushalt durchsuchen:",
+                value="",
+                placeholder="z.B. Kultur, Radweg, Tourismusabgabe, Schule, Gewerbesteuer...",
+                key="ant_q",
+            )
+        with a_c3:
+            hide_satire = st.checkbox("Satire-Anträge (Rathauscasino 360 Mio. €) ausblenden", value=True, key="ant_sat")
+
+        view_ant = df_antraege.copy()
+        if hide_satire:
+            view_ant = view_ant[view_ant["Ist_Satire"] == False]
+        if sel_frak != "Alle Fraktionen":
+            view_ant = view_ant[view_ant["Fraktion"] == sel_frak]
+        if ant_search.strip():
+            qa = ant_search.strip().lower()
+            view_ant = view_ant[
+                view_ant["Titel"].fillna("").str.lower().str.contains(qa, regex=False)
+                | view_ant["Beschreibung"].fillna("").str.lower().str.contains(qa, regex=False)
+                | view_ant["TH"].fillna("").str.lower().str.contains(qa, regex=False)
+            ]
+
+        frak_cnt = (
+            df_antraege[df_antraege["Ist_Satire"] == False]
+            .groupby("Fraktion", as_index=False)
+            .agg(Antraege=("Nr", "count"), Netto_25_26=("Netto_Entlastung_2025_26_EUR", "sum"))
+            .sort_values("Antraege", ascending=True)
+        )
+        col_a_chart, col_a_tbl = st.columns([1, 1.6])
+        with col_a_chart:
+            fig_ant = px.bar(
+                frak_cnt,
+                x="Antraege",
+                y="Fraktion",
+                orientation="h",
+                color="Antraege",
+                color_continuous_scale="Blues",
+                title="Anzahl der Haushalts-Änderungsanträge nach Fraktion",
+            )
+            fig_ant.update_layout(yaxis_title="", coloraxis_showscale=False, height=380, template="plotly_white")
+            st.plotly_chart(fig_ant, use_container_width=True)
+        with col_a_tbl:
+            st.dataframe(
+                view_ant[
+                    [
+                        "Nr", "Fraktion", "TH", "Haushaltstyp", "Titel",
+                        "Ertrag_Aenderung_2025_EUR", "Aufwand_Aenderung_2025_EUR",
+                        "Ertrag_Aenderung_2026_EUR", "Aufwand_Aenderung_2026_EUR",
+                        "Stellungnahme_Verwaltung",
+                    ]
+                ],
+                use_container_width=True,
+                height=380,
+            )
+
+    # --- LIVE INTERNAL CONSISTENCY AUDIT PANEL ---
+    st.markdown("---")
+    st.subheader("✅ Automatisierte Interne Finanz-Konsistenzprüfung (Reconciliation Matrix)")
+    st.caption(
+        "Prüft in Echtzeit die mathematische Übereinstimmung zwischen Einzelposten, Teilhaushalten, Gesamtergebnishaushalt, "
+        "Schlussbilanz und Stellenplan über alle Datenquellen hinweg."
+    )
+    df_aemter_check = pd.read_csv(DATA_DIR / "haushalt_heidelberg_aemter.csv", encoding="utf-8")
+    diff_deep_aemter = abs(df["Betrag"].sum() - df_aemter_check["Betrag"].sum())
+
+    nh_ges_e = df_nh_ges[df_nh_ges["Typ"] == "Erträge"]["Neu_2026_EUR"].sum() if not df_nh_ges.empty else 0.0
+    nh_amt_e = (
+        df_nh_aemter[df_nh_aemter["Position"] == "Anteilige ordentliche Erträge"]["Neu_2026"].sum()
+        if not df_nh_aemter.empty
+        else 0.0
+    )
+    nh_ges_a = df_nh_ges[df_nh_ges["Typ"] == "Aufwendungen"]["Neu_2026_EUR"].sum() if not df_nh_ges.empty else 0.0
+    nh_amt_a = (
+        df_nh_aemter[df_nh_aemter["Position"] == "Anteilige ordentliche Aufwendungen"]["Neu_2026"].sum()
+        if not df_nh_aemter.empty
+        else 0.0
+    )
+
+    akt_24 = df_bilanz[(df_bilanz["Jahr"] == 2024) & (df_bilanz["Seite"] == "Aktiva")]["Betrag_TEUR"].sum() if not df_bilanz.empty else 0.0
+    pas_24 = df_bilanz[(df_bilanz["Jahr"] == 2024) & (df_bilanz["Seite"] == "Passiva")]["Betrag_TEUR"].sum() if not df_bilanz.empty else 0.0
+
+    pers_25_sum = df_pers[df_pers["Jahr"] == 2025]["Planstellen"].sum() if not df_pers.empty else 0.0
+
+    reconcil_rows = [
+        {
+            "Prüfregel (Accounting Identity)": "1. Teilhaushalte Deep (8.539 Posten) == Ämter-Summen (2013–2026)",
+            "Soll-Wert (Referenz)": fmt_eur(df_aemter_check["Betrag"].sum(), 2),
+            "Ist-Wert (Aggregiert)": fmt_eur(df["Betrag"].sum(), 2),
+            "Differenz": fmt_eur(diff_deep_aemter, 2),
+            "Status": "✅ 100% Konsistent" if diff_deep_aemter < 0.01 else "❌ Abweichung",
+        },
+        {
+            "Prüfregel (Accounting Identity)": "2. 1. Nachtrag 2026: Summe 41 Teilhaushalte Erträge == Gesamtergebnishaushalt",
+            "Soll-Wert (Referenz)": fmt_eur(nh_ges_e, 2),
+            "Ist-Wert (Aggregiert)": fmt_eur(nh_amt_e, 2),
+            "Differenz": fmt_eur(abs(nh_ges_e - nh_amt_e), 2),
+            "Status": "✅ 100% Konsistent" if abs(nh_ges_e - nh_amt_e) < 0.01 else "❌ Abweichung",
+        },
+        {
+            "Prüfregel (Accounting Identity)": "3. 1. Nachtrag 2026: Summe 41 Teilhaushalte Aufwendungen == Gesamtergebnishaushalt",
+            "Soll-Wert (Referenz)": fmt_eur(nh_ges_a, 2),
+            "Ist-Wert (Aggregiert)": fmt_eur(nh_amt_a, 2),
+            "Differenz": fmt_eur(abs(nh_ges_a - nh_amt_a), 2),
+            "Status": "✅ 100% Konsistent" if abs(nh_ges_a - nh_amt_a) < 0.01 else "❌ Abweichung",
+        },
+        {
+            "Prüfregel (Accounting Identity)": "4. Schlussbilanz 2015–2024: Aktiva == Passiva == Bilanzsumme (2024: 1.780.058 T€)",
+            "Soll-Wert (Referenz)": f"{akt_24:,.0f} T€".replace(",", "."),
+            "Ist-Wert (Aggregiert)": f"{pas_24:,.0f} T€".replace(",", "."),
+            "Differenz": f"{abs(akt_24 - pas_24):,.2f} T€",
+            "Status": "✅ 100% Konsistent" if abs(akt_24 - pas_24) < 0.01 else "❌ Abweichung",
+        },
+        {
+            "Prüfregel (Accounting Identity)": "5. Stellenplan 2025/2026: Beamte (733,75) + Tarif (1.924,25) == 2.658,00 VZÄ",
+            "Soll-Wert (Referenz)": "2.658,00 VZÄ",
+            "Ist-Wert (Aggregiert)": f"{pers_25_sum:,.2f} VZÄ".replace(",", "X").replace(".", ",").replace("X", "."),
+            "Differenz": f"{abs(2658.0 - pers_25_sum):.2f} VZÄ",
+            "Status": "✅ 100% Konsistent" if abs(2658.0 - pers_25_sum) < 0.01 else "❌ Abweichung",
+        },
+    ]
+    st.dataframe(pd.DataFrame(reconcil_rows), use_container_width=True, hide_index=True)
+

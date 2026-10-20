@@ -259,6 +259,11 @@ def extract_pdf_deep(pdf_path: Path, table_years: tuple[int, int, int, int], emi
                                 gb_cat_totals[key][y] += norm_vals[y]
                 break
 
+        # Ensure special rows' parent categories exist in gb_cat_totals so amt_records and deep_records match 100%
+        for s_typ, s_cat, _, _ in gb_special_rows:
+            if (s_typ, s_cat) not in gb_cat_totals:
+                gb_cat_totals[(s_typ, s_cat)] = {y: 0.0 for y in table_years}
+
         # Emit Amt-level category records
         for (typ, canon_cat), tot_vals in gb_cat_totals.items():
             for y in emit_years:

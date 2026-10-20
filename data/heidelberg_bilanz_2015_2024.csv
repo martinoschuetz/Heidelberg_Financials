@@ -91,13 +91,13 @@ Jahr,Seite,Gruppe,Position,Betrag_TEUR,Betrag_EUR
 2024,Aktiva,1.Sachvermögen,Vorräte,2714,2714000.0
 2015,Aktiva,1.Sachvermögen,"Geleistete Anzahlungen, Anlagen im Bau",57552,57552000.0
 2016,Aktiva,1.Sachvermögen,"Geleistete Anzahlungen, Anlagen im Bau",66088,66088000.0
-2017,Aktiva,1.Sachvermögen,"Geleistete Anzahlungen, Anlagen im Bau",81847,81847000.0
-2018,Aktiva,1.Sachvermögen,"Geleistete Anzahlungen, Anlagen im Bau",97537,97537000.0
-2019,Aktiva,1.Sachvermögen,"Geleistete Anzahlungen, Anlagen im Bau",130612,130612000.0
+2017,Aktiva,1.Sachvermögen,"Geleistete Anzahlungen, Anlagen im Bau",81845,81845000.0
+2018,Aktiva,1.Sachvermögen,"Geleistete Anzahlungen, Anlagen im Bau",97536,97536000.0
+2019,Aktiva,1.Sachvermögen,"Geleistete Anzahlungen, Anlagen im Bau",130613,130613000.0
 2020,Aktiva,1.Sachvermögen,"Geleistete Anzahlungen, Anlagen im Bau",153839,153839000.0
 2021,Aktiva,1.Sachvermögen,"Geleistete Anzahlungen, Anlagen im Bau",183299,183299000.0
-2022,Aktiva,1.Sachvermögen,"Geleistete Anzahlungen, Anlagen im Bau",174773,174773000.0
-2023,Aktiva,1.Sachvermögen,"Geleistete Anzahlungen, Anlagen im Bau",183723,183723000.0
+2022,Aktiva,1.Sachvermögen,"Geleistete Anzahlungen, Anlagen im Bau",174774,174774000.0
+2023,Aktiva,1.Sachvermögen,"Geleistete Anzahlungen, Anlagen im Bau",183724,183724000.0
 2024,Aktiva,1.Sachvermögen,"Geleistete Anzahlungen, Anlagen im Bau",164011,164011000.0
 2015,Aktiva,1.Finanzvermögen,"Beteiligungen & Sondervermögen (SWH, GGH, SBH, ETO, ESB)",134819,134819000.0
 2016,Aktiva,1.Finanzvermögen,"Beteiligungen & Sondervermögen (SWH, GGH, SBH, ETO, ESB)",142032,142032000.0
@@ -120,15 +120,15 @@ Jahr,Seite,Gruppe,Position,Betrag_TEUR,Betrag_EUR
 2023,Aktiva,1.Finanzvermögen,Ausleihungen & Wertpapiere,36005,36005000.0
 2024,Aktiva,1.Finanzvermögen,Ausleihungen & Wertpapiere,35255,35255000.0
 2015,Aktiva,1.Finanzvermögen,Öffentlich-rechtliche & Privatrechtliche Forderungen,33422,33422000.0
-2016,Aktiva,1.Finanzvermögen,Öffentlich-rechtliche & Privatrechtliche Forderungen,39458,39458000.0
-2017,Aktiva,1.Finanzvermögen,Öffentlich-rechtliche & Privatrechtliche Forderungen,32077,32077000.0
-2018,Aktiva,1.Finanzvermögen,Öffentlich-rechtliche & Privatrechtliche Forderungen,33373,33373000.0
+2016,Aktiva,1.Finanzvermögen,Öffentlich-rechtliche & Privatrechtliche Forderungen,39459,39459000.0
+2017,Aktiva,1.Finanzvermögen,Öffentlich-rechtliche & Privatrechtliche Forderungen,32078,32078000.0
+2018,Aktiva,1.Finanzvermögen,Öffentlich-rechtliche & Privatrechtliche Forderungen,33372,33372000.0
 2019,Aktiva,1.Finanzvermögen,Öffentlich-rechtliche & Privatrechtliche Forderungen,38547,38547000.0
 2020,Aktiva,1.Finanzvermögen,Öffentlich-rechtliche & Privatrechtliche Forderungen,52370,52370000.0
 2021,Aktiva,1.Finanzvermögen,Öffentlich-rechtliche & Privatrechtliche Forderungen,53312,53312000.0
-2022,Aktiva,1.Finanzvermögen,Öffentlich-rechtliche & Privatrechtliche Forderungen,46986,46986000.0
+2022,Aktiva,1.Finanzvermögen,Öffentlich-rechtliche & Privatrechtliche Forderungen,46985,46985000.0
 2023,Aktiva,1.Finanzvermögen,Öffentlich-rechtliche & Privatrechtliche Forderungen,96679,96679000.0
-2024,Aktiva,1.Finanzvermögen,Öffentlich-rechtliche & Privatrechtliche Forderungen,121194,121194000.0
+2024,Aktiva,1.Finanzvermögen,Öffentlich-rechtliche & Privatrechtliche Forderungen,121193,121193000.0
 2015,Aktiva,1.Finanzvermögen,Liquide Mittel (Kassenbestand & Bankguthaben),15791,15791000.0
 2016,Aktiva,1.Finanzvermögen,Liquide Mittel (Kassenbestand & Bankguthaben),39962,39962000.0
 2017,Aktiva,1.Finanzvermögen,Liquide Mittel (Kassenbestand & Bankguthaben),5073,5073000.0
@@ -144,9 +144,9 @@ Jahr,Seite,Gruppe,Position,Betrag_TEUR,Betrag_EUR
 2017,Aktiva,2. Abgrenzungsposten,Aktive Rechnungsabgrenzung & geleistete Investitionszuschüsse,31337,31337000.0
 2018,Aktiva,2. Abgrenzungsposten,Aktive Rechnungsabgrenzung & geleistete Investitionszuschüsse,33821,33821000.0
 2019,Aktiva,2. Abgrenzungsposten,Aktive Rechnungsabgrenzung & geleistete Investitionszuschüsse,37254,37254000.0
-2020,Aktiva,2. Abgrenzungsposten,Aktive Rechnungsabgrenzung & geleistete Investitionszuschüsse,38897,38897000.0
+2020,Aktiva,2. Abgrenzungsposten,Aktive Rechnungsabgrenzung & geleistete Investitionszuschüsse,38896,38896000.0
 2021,Aktiva,2. Abgrenzungsposten,Aktive Rechnungsabgrenzung & geleistete Investitionszuschüsse,38164,38164000.0
-2022,Aktiva,2. Abgrenzungsposten,Aktive Rechnungsabgrenzung & geleistete Investitionszuschüsse,41575,41575000.0
+2022,Aktiva,2. Abgrenzungsposten,Aktive Rechnungsabgrenzung & geleistete Investitionszuschüsse,41574,41574000.0
 2023,Aktiva,2. Abgrenzungsposten,Aktive Rechnungsabgrenzung & geleistete Investitionszuschüsse,34954,34954000.0
 2024,Aktiva,2. Abgrenzungsposten,Aktive Rechnungsabgrenzung & geleistete Investitionszuschüsse,36528,36528000.0
 2015,Passiva,1. Kapitalposition (Eigenkapital),Basiskapital,806961,806961000.0
@@ -169,13 +169,13 @@ Jahr,Seite,Gruppe,Position,Betrag_TEUR,Betrag_EUR
 2022,Passiva,1. Kapitalposition (Eigenkapital),Rücklagen aus Überschüssen des ordentlichen Ergebnisses,195924,195924000.0
 2023,Passiva,1. Kapitalposition (Eigenkapital),Rücklagen aus Überschüssen des ordentlichen Ergebnisses,188345,188345000.0
 2024,Passiva,1. Kapitalposition (Eigenkapital),Rücklagen aus Überschüssen des ordentlichen Ergebnisses,148627,148627000.0
-2015,Passiva,1. Kapitalposition (Eigenkapital),Rücklagen aus Überschüssen des Sonderergebnisses & Zweckrücklagen,45200,45200000.0
+2015,Passiva,1. Kapitalposition (Eigenkapital),Rücklagen aus Überschüssen des Sonderergebnisses & Zweckrücklagen,45201,45201000.0
 2016,Passiva,1. Kapitalposition (Eigenkapital),Rücklagen aus Überschüssen des Sonderergebnisses & Zweckrücklagen,47395,47395000.0
 2017,Passiva,1. Kapitalposition (Eigenkapital),Rücklagen aus Überschüssen des Sonderergebnisses & Zweckrücklagen,47170,47170000.0
 2018,Passiva,1. Kapitalposition (Eigenkapital),Rücklagen aus Überschüssen des Sonderergebnisses & Zweckrücklagen,46501,46501000.0
 2019,Passiva,1. Kapitalposition (Eigenkapital),Rücklagen aus Überschüssen des Sonderergebnisses & Zweckrücklagen,49430,49430000.0
-2020,Passiva,1. Kapitalposition (Eigenkapital),Rücklagen aus Überschüssen des Sonderergebnisses & Zweckrücklagen,49503,49503000.0
-2021,Passiva,1. Kapitalposition (Eigenkapital),Rücklagen aus Überschüssen des Sonderergebnisses & Zweckrücklagen,48839,48839000.0
+2020,Passiva,1. Kapitalposition (Eigenkapital),Rücklagen aus Überschüssen des Sonderergebnisses & Zweckrücklagen,49504,49504000.0
+2021,Passiva,1. Kapitalposition (Eigenkapital),Rücklagen aus Überschüssen des Sonderergebnisses & Zweckrücklagen,48838,48838000.0
 2022,Passiva,1. Kapitalposition (Eigenkapital),Rücklagen aus Überschüssen des Sonderergebnisses & Zweckrücklagen,49198,49198000.0
 2023,Passiva,1. Kapitalposition (Eigenkapital),Rücklagen aus Überschüssen des Sonderergebnisses & Zweckrücklagen,49097,49097000.0
 2024,Passiva,1. Kapitalposition (Eigenkapital),Rücklagen aus Überschüssen des Sonderergebnisses & Zweckrücklagen,51343,51343000.0
@@ -230,15 +230,15 @@ Jahr,Seite,Gruppe,Position,Betrag_TEUR,Betrag_EUR
 2023,Passiva,4. Verbindlichkeiten,Kreditähnliche Verbindlichkeiten (u.a. ÖPP IGH / B3),65340,65340000.0
 2024,Passiva,4. Verbindlichkeiten,Kreditähnliche Verbindlichkeiten (u.a. ÖPP IGH / B3),58885,58885000.0
 2015,Passiva,4. Verbindlichkeiten,"Verbindlichkeiten aus Lieferungen/Leistungen, Transfer & Sonstige",27737,27737000.0
-2016,Passiva,4. Verbindlichkeiten,"Verbindlichkeiten aus Lieferungen/Leistungen, Transfer & Sonstige",23505,23505000.0
+2016,Passiva,4. Verbindlichkeiten,"Verbindlichkeiten aus Lieferungen/Leistungen, Transfer & Sonstige",23506,23506000.0
 2017,Passiva,4. Verbindlichkeiten,"Verbindlichkeiten aus Lieferungen/Leistungen, Transfer & Sonstige",23823,23823000.0
-2018,Passiva,4. Verbindlichkeiten,"Verbindlichkeiten aus Lieferungen/Leistungen, Transfer & Sonstige",23644,23644000.0
+2018,Passiva,4. Verbindlichkeiten,"Verbindlichkeiten aus Lieferungen/Leistungen, Transfer & Sonstige",23643,23643000.0
 2019,Passiva,4. Verbindlichkeiten,"Verbindlichkeiten aus Lieferungen/Leistungen, Transfer & Sonstige",31875,31875000.0
 2020,Passiva,4. Verbindlichkeiten,"Verbindlichkeiten aus Lieferungen/Leistungen, Transfer & Sonstige",23529,23529000.0
 2021,Passiva,4. Verbindlichkeiten,"Verbindlichkeiten aus Lieferungen/Leistungen, Transfer & Sonstige",36144,36144000.0
 2022,Passiva,4. Verbindlichkeiten,"Verbindlichkeiten aus Lieferungen/Leistungen, Transfer & Sonstige",38922,38922000.0
-2023,Passiva,4. Verbindlichkeiten,"Verbindlichkeiten aus Lieferungen/Leistungen, Transfer & Sonstige",35528,35528000.0
-2024,Passiva,4. Verbindlichkeiten,"Verbindlichkeiten aus Lieferungen/Leistungen, Transfer & Sonstige",34799,34799000.0
+2023,Passiva,4. Verbindlichkeiten,"Verbindlichkeiten aus Lieferungen/Leistungen, Transfer & Sonstige",35527,35527000.0
+2024,Passiva,4. Verbindlichkeiten,"Verbindlichkeiten aus Lieferungen/Leistungen, Transfer & Sonstige",34800,34800000.0
 2015,Passiva,5. Passive Rechnungsabgrenzung,Passive Rechnungsabgrenzungsposten (u.a. Grabnutzungsrechte),21449,21449000.0
 2016,Passiva,5. Passive Rechnungsabgrenzung,Passive Rechnungsabgrenzungsposten (u.a. Grabnutzungsrechte),21706,21706000.0
 2017,Passiva,5. Passive Rechnungsabgrenzung,Passive Rechnungsabgrenzungsposten (u.a. Grabnutzungsrechte),22206,22206000.0

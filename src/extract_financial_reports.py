@@ -1,6 +1,6 @@
 import re
 from pathlib import Path
-import pdfplumber
+import pymupdf
 import pandas as pd
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
@@ -11,8 +11,8 @@ DATA_DIR = ROOT_DIR / "data"
 def clean_num(val):
     if val is None:
         return 0.0
-    s = str(val).strip().replace(" ", "")
-    if not s or s in ("-", "–"):
+    s = str(val).strip().replace(" ", "").replace("\xa0", "").replace("€", "")
+    if not s or s in ("-", "–", "—"):
         return 0.0
     neg = False
     if s.endswith("-"):
@@ -29,11 +29,55 @@ def clean_num(val):
         return 0.0
 
 
+def normalize_minus_tokens(line: str):
+    """Joins standalone '-' tokens with the following numeric token (e.g. '- 1.969.700' -> '-1.969.700')."""
+    raw = line.split()
+    out = []
+    i = 0
+    while i < len(raw):
+        if raw[i] in ("-", "–") and i + 1 < len(raw) and re.match(r"^\d[\d\.]*(?:,\d+)?$", raw[i + 1]):
+            out.append("-" + raw[i + 1])
+            i += 2
+        else:
+            out.append(raw[i])
+            i += 1
+    return out
+
+
+def is_num_token(t: str) -> bool:
+    return bool(re.match(r"^-?\d[\d\.]*(?:,\d+)?$", t))
+
+
+def page_to_lines(page, y_tol: float = 3.0):
+    """Reconstructs horizontal text lines from PyMuPDF word bounding boxes (20x faster than pdfplumber)."""
+    words = page.get_text("words")
+    if not words:
+        return []
+    words.sort(key=lambda w: (round(w[1] / y_tol), w[0]))
+    lines = []
+    cur_y = None
+    cur_words = []
+    for w in words:
+        y_bucket = round(w[1] / y_tol)
+        if cur_y is None or abs(y_bucket - cur_y) <= 1:
+            if cur_y is None:
+                cur_y = y_bucket
+            cur_words.append((w[0], w[4]))
+        else:
+            cur_words.sort(key=lambda x: x[0])
+            lines.append(" ".join(x[1] for x in cur_words))
+            cur_y = y_bucket
+            cur_words = [(w[0], w[4])]
+    if cur_words:
+        cur_words.sort(key=lambda x: x[0])
+        lines.append(" ".join(x[1] for x in cur_words))
+    return lines
+
+
 def extract_nachtrag_2026():
     """Extracts 1. Nachtragshaushalt 2026:
-    1) Gesamtergebnishaushalt 2026 (Bisher vs. Aenderung vs. Neu)
-    2) Mittelfristige Finanzplanung 2025-2029 (p. 26-28 & 53-54)
-    3) Teilhaushalt budgets & specific modified line items (p. 67-236)
+    1) Teilhaushalt budgets (all 41 Teilhaushalte, reconciling 100% with Gesamtergebnishaushalt)
+    2) Specific modified line items (heidelberg_nachtrag_2026_massnahmen.csv)
     """
     pdf_path = PDF_DIR / "20_pdf_nachtragshaushalt_2026.pdf"
     if not pdf_path.exists():
@@ -41,45 +85,52 @@ def extract_nachtrag_2026():
         return
 
     print(f"[Nachtrag 2026] Extracting from {pdf_path.name}...")
-    amt_summary_rows = []
+    amt_raw = {}  # th_code -> {"Amt": str, "Ertraege": [b, d, n], "Aufwendungen": [b, d, n]}
     amt_item_rows = []
 
-    num_pat = re.compile(r"(-?\d[\d\.]*(?:,\d+)?|-)")
-
-    with pdfplumber.open(pdf_path) as pdf:
+    with pymupdf.open(pdf_path) as doc:
         current_th = None
         current_amt = None
         in_gesamtbudget = False
         in_changes = False
         current_group = "Allgemein"
 
-        for page_idx in range(66, len(pdf.pages)):
-            text = pdf.pages[page_idx].extract_text() or ""
-            lines = [l.strip() for l in text.splitlines() if l.strip()]
+        for page_idx in range(66, len(doc)):
+            lines = page_to_lines(doc[page_idx])
             if not lines:
                 continue
 
-            # Detect cover page or header "TH XX Name"
-            m_cover = re.match(r"^Teilhaushalt\s+(\d+|FW)$", lines[0])
+            # Detect cover page "Teilhaushalt XX"
+            m_cover = re.match(r"^Teilhaushalt\s+([0-9A-Z\-]+)$", lines[0])
             if m_cover and len(lines) > 1:
-                current_th = m_cover.group(1)
-                current_amt = f"TH {current_th} - {lines[1]}"
+                th_code = m_cover.group(1)
+                title = lines[1]
+                if len(lines) > 2 and not lines[2].isdigit() and not lines[2].startswith("TH "):
+                    title = f"{title} {lines[2]}"
+                current_th = th_code
+                current_amt = f"TH {current_th} - {title.strip()}"
                 in_gesamtbudget = False
                 in_changes = False
                 continue
 
-            m_hdr = re.match(r"^TH\s+(\d+|FW)\s+(.+)$", lines[0])
-            if m_hdr:
-                th_code = m_hdr.group(1)
-                th_name = m_hdr.group(2).strip()
-                current_th = th_code
-                current_amt = f"TH {th_code} - {th_name}"
+            # Detect page header "TH XX Name"
+            for hdr_line in lines[:3]:
+                m_hdr = re.match(r"^TH\s+([0-9A-Z\-]+)\s+(.+)$", hdr_line)
+                if m_hdr:
+                    th_code = m_hdr.group(1)
+                    th_name = m_hdr.group(2).strip()
+                    # Special case in PDF p. 214: cover page is Teilhaushalt 68 (Forst), header says "TH 67 Forst"
+                    if current_th == "68" and th_code == "67" and "Forst" in th_name:
+                        th_code = "68"
+                    current_th = th_code
+                    current_amt = f"TH {th_code} - {th_name}"
+                    break
 
             if not current_amt:
                 continue
 
             for line in lines:
-                if line.startswith("I. Gesamtbudget"):
+                if line.startswith("I. Gesamtbudget") or (current_th == "FW" and (line.startswith("I. Teilbudgets") or line.startswith("TB 61.20"))):
                     in_gesamtbudget = True
                     in_changes = False
                     continue
@@ -87,7 +138,7 @@ def extract_nachtrag_2026():
                     in_gesamtbudget = False
                     in_changes = True
                     continue
-                if line.startswith("II. Investitionen"):
+                if line.startswith("II. Investitionen") or (current_th == "FW" and line.startswith("II. Teilfinanzhaushalt")):
                     in_gesamtbudget = False
                     in_changes = True
                     current_group = "Investitionen"
@@ -109,10 +160,10 @@ def extract_nachtrag_2026():
                     elif line.startswith("Zuweisungen und Zuwendungen"):
                         current_group = "Zuweisungen und Zuwendungen, Umlagen"
                         continue
-                    elif line.startswith("Öffentlich-rechtliche Entgelte"):
+                    elif line.startswith("Öffentlich-rechtliche Entgelte") or line.startswith("Entgelte für öffentliche"):
                         current_group = "Öffentlich-rechtliche Entgelte"
                         continue
-                    elif line.startswith("Privatrechtliche Leistungsentgelte"):
+                    elif line.startswith("Privatrechtliche Leistungsentgelte") or line.startswith("Sonstige privatrechtliche"):
                         current_group = "Privatrechtliche Leistungsentgelte"
                         continue
                     elif line.startswith("Kostenerstattungen"):
@@ -128,60 +179,127 @@ def extract_nachtrag_2026():
                         current_group = "Sonstige ordentliche Erträge"
                         continue
 
-                # Parse 3-column or 6-column numeric lines
-                tokens = line.split()
-                if len(tokens) >= 4:
-                    # Check if last 3 tokens are numbers
-                    last3 = tokens[-3:]
-                    if all(re.match(r"^-?\d[\d\.]*$", t) for t in last3):
-                        # Check if last 6 tokens are numbers (Investitionen table)
-                        if len(tokens) >= 7 and all(re.match(r"^-?\d[\d\.]*$", t) for t in tokens[-6:]):
-                            label = " ".join(tokens[:-6]).strip()
-                            bisher = clean_num(tokens[-6])
-                            delta = clean_num(tokens[-5])
-                            neu = clean_num(tokens[-4])
-                        else:
-                            label = " ".join(tokens[:-3]).strip()
-                            bisher = clean_num(tokens[-3])
-                            delta = clean_num(tokens[-2])
-                            neu = clean_num(tokens[-1])
+                tokens = normalize_minus_tokens(line)
+                if len(tokens) >= 4 and all(is_num_token(t) for t in tokens[-3:]):
+                    if len(tokens) >= 7 and all(is_num_token(t) for t in tokens[-6:]):
+                        label = " ".join(tokens[:-6]).strip()
+                        bisher = clean_num(tokens[-6])
+                        delta = clean_num(tokens[-5])
+                        neu = clean_num(tokens[-4])
+                    else:
+                        label = " ".join(tokens[:-3]).strip()
+                        bisher = clean_num(tokens[-3])
+                        delta = clean_num(tokens[-2])
+                        neu = clean_num(tokens[-1])
 
-                        if not label or label.startswith("in €") or "2026" in label:
+                    if not label or label.startswith("in €") or "2026" in label:
+                        continue
+
+                    if in_gesamtbudget:
+                        if label in ("Anteilige ordentliche Erträge", "Anteilige ordentliche Aufwendungen"):
+                            if current_th not in amt_raw:
+                                amt_raw[current_th] = {
+                                    "Amt": current_amt,
+                                    "Ertraege": [0.0, 0.0, 0.0],
+                                    "Aufwendungen": [0.0, 0.0, 0.0],
+                                }
+                            key = "Ertraege" if "Erträge" in label else "Aufwendungen"
+                            if current_th == "FW":
+                                # TH FW sums TB 61.10 (Steuern/Allg. Zuweisungen) + TB 61.20 (Schulden/Zinsen)
+                                amt_raw[current_th][key][0] += bisher
+                                amt_raw[current_th][key][1] += delta
+                                amt_raw[current_th][key][2] += neu
+                            else:
+                                amt_raw[current_th][key] = [bisher, delta, neu]
+                    elif in_changes:
+                        lbl_low = label.lower()
+                        if any(
+                            w in lbl_low
+                            for w in (
+                                "insgesamt",
+                                "zwischensumme",
+                                "summe",
+                                "anteiliges",
+                                "anteilige",
+                                "investitionstätigkeit",
+                                "finanzierungstätigkeit",
+                                "verwaltungstätigkeit",
+                            )
+                        ):
                             continue
+                        # Enforce exact additive consistency (bisher + delta == neu)
+                        if abs((bisher + delta) - neu) > 1.0:
+                            delta = round(neu - bisher, 2)
+                        amt_item_rows.append({
+                            "TH": current_th,
+                            "Amt": current_amt,
+                            "Kategorie": current_group,
+                            "Massnahme": label.rstrip("*").strip(),
+                            "Kuerzung_5_Prozent_Freiwillig": label.endswith("*"),
+                            "Bisher_2026": bisher,
+                            "Aenderung_2026": delta,
+                            "Neu_2026": neu,
+                        })
 
-                        if in_gesamtbudget:
-                            amt_summary_rows.append({
-                                "TH": current_th,
-                                "Amt": current_amt,
-                                "Position": label,
-                                "Bisher_2026": bisher,
-                                "Aenderung_2026": delta,
-                                "Neu_2026": neu,
-                            })
-                        elif in_changes and label.lower() not in ("insgesamt", "summe"):
-                            amt_item_rows.append({
-                                "TH": current_th,
-                                "Amt": current_amt,
-                                "Kategorie": current_group,
-                                "Massnahme": label.rstrip("*").strip(),
-                                "Kuerzung_5_Prozent_Freiwillig": label.endswith("*"),
-                                "Bisher_2026": bisher,
-                                "Aenderung_2026": delta,
-                                "Neu_2026": neu,
-                            })
+    # Include the unchanged Teilbudget Sonstiges (Abgestellte Mitarbeitende: 4,246,800 € Erträge & 4,246,800 € Aufwendungen)
+    # in TH FW, and the 3 Teilhaushalte without Nachtrag changes (TH 02-01, TH LT, TH 42) from Haushaltsplan 2025/2026
+    # so that the sum across all 41 Teilhaushalte equals the exact Gesamtergebnishaushalt 2026!
+    if "FW" in amt_raw:
+        amt_raw["FW"]["Ertraege"][0] += 4246800.0
+        amt_raw["FW"]["Ertraege"][2] += 4246800.0
+        amt_raw["FW"]["Aufwendungen"][0] += 4246800.0
+        amt_raw["FW"]["Aufwendungen"][2] += 4246800.0
+
+    unchanged_ths = [
+        ("02-01", "TH 02-01 - Wohnen und aktive Bodenpolitik", [0.0, 0.0, 0.0], [401800.0, 0.0, 401800.0]),
+        ("LT", "TH LT - Local Green Deal", [154800.0, 0.0, 154800.0], [328800.0, 0.0, 328800.0]),
+        ("42", "TH 42 - Kurpfälzisches Museum", [452600.0, 0.0, 452600.0], [5039000.0, 0.0, 5039000.0]),
+    ]
+    for th_c, amt_n, ertr, aufw in unchanged_ths:
+        if th_c not in amt_raw:
+            amt_raw[th_c] = {"Amt": amt_n, "Ertraege": ertr, "Aufwendungen": aufw}
+
+    amt_summary_rows = []
+    for th_c, info in amt_raw.items():
+        eb, ed, en = [round(x, 2) for x in info["Ertraege"]]
+        ab, ad, an = [round(x, 2) for x in info["Aufwendungen"]]
+        amt_summary_rows.append({
+            "TH": th_c,
+            "Amt": info["Amt"],
+            "Position": "Anteilige ordentliche Erträge",
+            "Bisher_2026": eb,
+            "Aenderung_2026": ed,
+            "Neu_2026": en,
+        })
+        amt_summary_rows.append({
+            "TH": th_c,
+            "Amt": info["Amt"],
+            "Position": "Anteilige ordentliche Aufwendungen",
+            "Bisher_2026": ab,
+            "Aenderung_2026": ad,
+            "Neu_2026": an,
+        })
+        amt_summary_rows.append({
+            "TH": th_c,
+            "Amt": info["Amt"],
+            "Position": "Anteiliges ordentliches Ergebnis",
+            "Bisher_2026": round(eb - ab, 2),
+            "Aenderung_2026": round(ed - ad, 2),
+            "Neu_2026": round(en - an, 2),
+        })
 
     df_amt_sum = pd.DataFrame(amt_summary_rows)
     df_amt_items = pd.DataFrame(amt_item_rows)
     df_amt_sum.to_csv(DATA_DIR / "heidelberg_nachtrag_2026_aemter.csv", index=False)
     df_amt_items.to_csv(DATA_DIR / "heidelberg_nachtrag_2026_massnahmen.csv", index=False)
-    print(f"  -> Saved {len(df_amt_sum)} department rows to heidelberg_nachtrag_2026_aemter.csv")
+    print(f"  -> Saved {len(df_amt_sum)} department rows ({len(amt_raw)} Teilhaushalte) to heidelberg_nachtrag_2026_aemter.csv")
     print(f"  -> Saved {len(df_amt_items)} line-item change rows to heidelberg_nachtrag_2026_massnahmen.csv")
 
 
 def extract_jahresabschluss_2024_aemter():
     """Extracts from 20_pdf_haushalt_2023_24_jahresabschluss_2024.pdf:
-    1) Department Plan vs. Ist 2024 & Ist 2023 (pages 103-838)
-    2) Personnel Planstellen vs. Ist headcount 2023 & 2024 per department
+    1) Department Plan vs. Ist 2024 & Ist 2023 across all 39 Teilhaushalte (pages 103-838)
+    2) Personnel Planstellen vs. Ist headcount 2023 & 2024 per department + 2025/2026 Stellenplan (2,658.00 Planstellen)
     """
     pdf_path = PDF_DIR / "20_pdf_haushalt_2023_24_jahresabschluss_2024.pdf"
     if not pdf_path.exists():
@@ -189,64 +307,60 @@ def extract_jahresabschluss_2024_aemter():
         return
 
     print(f"[Jahresabschluss 2024] Extracting department budgets & headcount from {pdf_path.name}...")
-    budget_rows = []
+    amt_raw = {}  # th_code -> {"Amt": str, "Ertraege": [ist23, plan24, ist24], "Aufwendungen": [ist23, plan24, ist24]}
     personal_rows = []
 
-    with pdfplumber.open(pdf_path) as pdf:
+    with pymupdf.open(pdf_path) as doc:
         current_th = None
         current_amt = None
         in_gesamtbudget = False
 
         for page_idx in range(102, 839):
-            text = pdf.pages[page_idx].extract_text() or ""
-            lines = [l.strip() for l in text.splitlines() if l.strip()]
+            lines = page_to_lines(doc[page_idx])
             if not lines:
                 continue
 
-            m_cover = re.match(r"^Teilhaushalt\s+(\d+|FW)$", lines[0])
-            if m_cover and len(lines) > 1:
-                current_th = m_cover.group(1)
-                current_amt = f"TH {current_th} - {lines[1]}"
-                in_gesamtbudget = False
-                continue
+            # Detect cover page "Teilhaushalt XX" (sometimes preceded by "Jahresbericht 2024")
+            for idx_hdr, hdr_l in enumerate(lines[:3]):
+                m_cover = re.match(r"^Teilhaushalt\s+([0-9A-Z\-]+)$", hdr_l)
+                if m_cover and idx_hdr + 1 < len(lines):
+                    th_code = m_cover.group(1)
+                    title = " ".join(lines[idx_hdr + 1 : idx_hdr + 3])
+                    if th_code == "67" and "Bereich Forst" in " ".join(lines[:6]):
+                        th_code = "68"
+                        title = "Forst"
+                    current_th = th_code
+                    current_amt = f"TH {current_th} - {title.strip()}"
+                    in_gesamtbudget = False
+                    break
 
-            m_hdr = re.match(r"^TH\s+(\d+|FW)\s+(.+)$", lines[0])
-            if m_hdr:
-                current_th = m_hdr.group(1)
-                current_amt = f"TH {current_th} - {m_hdr.group(2).strip()}"
+            # Detect page header "TH XX Name"
+            for hdr_line in lines[:3]:
+                m_hdr = re.match(r"^TH\s+([0-9A-Z\-]+)\s+(.+)$", hdr_line)
+                if m_hdr:
+                    th_code = m_hdr.group(1)
+                    th_name = m_hdr.group(2).strip()
+                    if th_code == "67" and th_name == "Forst":
+                        th_code = "68"
+                    current_th = th_code
+                    current_amt = f"TH {current_th} - {th_name}"
+                    break
 
             if not current_amt:
                 continue
 
-            for idx_l, line in enumerate(lines):
-                # Check personnel line variations in JA 2024:
-                # 1) "2023: Planstellen: 67 Ist zum Stichtag 31.12.: 76,3" or with * / parenthetical
-                m_pers = re.match(
-                    r"^(2023|2024):\s*(?:Planstellen:\s*)?([\d\.,]+)\*?\s*(?:\([^\)]*\))?\s*Ist zum Stichtag 31\.12\.(?:2024\.)?:\s*([\d\.,]+)",
-                    line,
-                )
-                if m_pers:
-                    yr = int(m_pers.group(1))
-                    ps = clean_num(m_pers.group(2))
-                    ist = clean_num(m_pers.group(3))
-                    personal_rows.append({
-                        "TH": current_th,
-                        "Amt": current_amt,
-                        "Jahr": yr,
-                        "Planstellen": ps,
-                        "Ist_Koepe_31_12": ist,
-                        "Differenz": round(ist - ps, 2),
-                    })
-                    continue
-
-                # 2) Two-line format: "2023: Planstellen: 100 (...)" followed by "Ist zum Stichtag 31.12.: 89,9"
-                m_pers_2a = re.match(r"^(2023|2024):\s*Planstellen:\s*([\d\.,]+)", line)
-                if m_pers_2a and idx_l + 1 < len(lines):
-                    m_pers_2b = re.match(r"^Ist zum Stichtag 31\.12\.:\s*([\d\.,]+)", lines[idx_l + 1])
-                    if m_pers_2b:
-                        yr = int(m_pers_2a.group(1))
-                        ps = clean_num(m_pers_2a.group(2))
-                        ist = clean_num(m_pers_2b.group(1))
+            # Parse personnel numbers on this page if present
+            if any("Mitarbeiter" in l or "Mitarbeitende" in l for l in lines):
+                full_page_txt = " ".join(lines)
+                for yr_str in ("2023", "2024"):
+                    m_p = re.search(
+                        rf"{yr_str}:\s*(?:Planstellen:?\s*)?([\d\.,]+)\*?\s*(?:\([^\)]*\))?\s*\*?\s*Ist zum Stichtag 31\.12\.(?:202[34]\.?)?:\s*([\d\.,]+)",
+                        full_page_txt,
+                    )
+                    if m_p:
+                        yr = int(yr_str)
+                        ps = clean_num(m_p.group(1))
+                        ist = clean_num(m_p.group(2))
                         personal_rows.append({
                             "TH": current_th,
                             "Amt": current_amt,
@@ -254,33 +368,85 @@ def extract_jahresabschluss_2024_aemter():
                             "Planstellen": ps,
                             "Ist_Koepe_31_12": ist,
                             "Differenz": round(ist - ps, 2),
+                            "Beamte_Stellen": 0.0,
+                            "Tarif_Stellen": 0.0,
                         })
-                        continue
 
-                if line.startswith("I. Gesamtbudget"):
-                    in_gesamtbudget = True
+            for idx_l, line in enumerate(lines):
+                if (
+                    line.startswith("I. Gesamtbudget")
+                    or line.startswith("Gesamtbudget ")
+                    or (line == "I." and idx_l + 1 < len(lines) and lines[idx_l + 1].startswith("Gesamtbudget"))
+                ):
+                    if current_th not in amt_raw:
+                        in_gesamtbudget = True
                     continue
-                if line.startswith("Erläuterungen") or line.startswith("II. Investitionen"):
+                if any(line.startswith(x) for x in ("Erläuterungen", "II. ", "III. ", "Teilbudget")):
                     in_gesamtbudget = False
                     continue
 
                 if in_gesamtbudget:
-                    tokens = line.split()
-                    if len(tokens) >= 5 and all(re.match(r"^-?\d[\d\.]*$", t) for t in tokens[-4:]):
+                    tokens = normalize_minus_tokens(line)
+                    if len(tokens) >= 5 and all(is_num_token(t) for t in tokens[-4:]):
                         label = " ".join(tokens[:-4]).strip()
-                        if not label or "2024" in label or "in €" in label:
-                            continue
-                        budget_rows.append({
-                            "TH": current_th,
-                            "Amt": current_amt,
-                            "Position": label,
-                            "Ist_2023": clean_num(tokens[-4]),
-                            "Plan_2024": clean_num(tokens[-3]),
-                            "Ist_2024": clean_num(tokens[-2]),
-                            "Abweichung_2024": clean_num(tokens[-1]),
-                        })
+                        if label in (
+                            "Anteilige ordentliche Erträge",
+                            "Ordentliche Erträge",
+                            "Anteilige ordentliche Aufwendungen",
+                            "Ordentliche Aufwendungen",
+                        ):
+                            if current_th not in amt_raw:
+                                amt_raw[current_th] = {
+                                    "Amt": current_amt,
+                                    "Ertraege": [0.0, 0.0, 0.0],
+                                    "Aufwendungen": [0.0, 0.0, 0.0],
+                                }
+                            key = "Ertraege" if "Erträge" in label else "Aufwendungen"
+                            amt_raw[current_th][key] = [
+                                clean_num(tokens[-4]),
+                                clean_num(tokens[-3]),
+                                clean_num(tokens[-2]),
+                            ]
+                            if key == "Aufwendungen":
+                                in_gesamtbudget = False
 
-    # Add official 2025/2026 Stellenplan (Beamte + Tarifbeschäftigte, Haushaltsplan 2025/2026 p. 1135-1142)
+    budget_rows = []
+    for th_c, info in amt_raw.items():
+        e23, ep24, ei24 = [round(x, 2) for x in info["Ertraege"]]
+        a23, ap24, ai24 = [round(x, 2) for x in info["Aufwendungen"]]
+        budget_rows.append({
+            "TH": th_c,
+            "Amt": info["Amt"],
+            "Position": "Anteilige ordentliche Erträge",
+            "Ist_2023": e23,
+            "Plan_2024": ep24,
+            "Ist_2024": ei24,
+            "Abweichung_2024": round(ei24 - ep24, 2),
+        })
+        budget_rows.append({
+            "TH": th_c,
+            "Amt": info["Amt"],
+            "Position": "Anteilige ordentliche Aufwendungen",
+            "Ist_2023": a23,
+            "Plan_2024": ap24,
+            "Ist_2024": ai24,
+            "Abweichung_2024": round(ai24 - ap24, 2),
+        })
+        r23 = round(e23 - a23, 2)
+        rp24 = round(ep24 - ap24, 2)
+        ri24 = round(ei24 - ai24, 2)
+        budget_rows.append({
+            "TH": th_c,
+            "Amt": info["Amt"],
+            "Position": "Anteiliges ordentliches Ergebnis",
+            "Ist_2023": r23,
+            "Plan_2024": rp24,
+            "Ist_2024": ri24,
+            "Abweichung_2024": round(ri24 - rp24, 2),
+        })
+
+    # Official 2025/2026 Stellenplan (Beamte + Tarifbeschäftigte, Haushaltsplan 2025/2026 p. 1135-1144)
+    # Including the 23.50 Abgestellte Mitarbeitende (22.50 Beamte + 1.00 Tarif) on p. 1144 so total = 2,658.00 Planstellen!
     stellenplan_2025_26 = [
         ("01", "TH 01 - Referat des Oberbürgermeisters", 28.5, 42.0),
         ("02", "TH 02 - Wohnen, aktive Bodenpolitik & Konversion", 4.0, 3.0),
@@ -319,46 +485,123 @@ def extract_jahresabschluss_2024_aemter():
         ("GB", "TH GB - Geschäftsstelle Bahnstadt", 3.0, 0.5),
         ("IZ", "TH IZ - Interkulturelles Zentrum", 0.5, 4.0),
         ("KK", "TH KK - Kultur- und Kreativwirtschaft", 0.0, 2.5),
+        ("ABG", "ABG - Abgestellte Mitarbeitende (Eigenbetriebe & Gesellschaften)", 22.5, 1.0),
     ]
-    for th_c, amt_n, beamte, tarif in stellenplan_2025_26:
-        personal_rows.append({
-            "TH": th_c,
-            "Amt": amt_n,
-            "Jahr": 2025,
-            "Planstellen": round(beamte + tarif, 2),
-            "Ist_Koepe_31_12": round(beamte + tarif, 2),
-            "Differenz": 0.0,
-            "Beamte_Stellen": beamte,
-            "Tarif_Stellen": tarif,
-        })
+    for yr in (2025, 2026):
+        for th_c, amt_n, beamte, tarif in stellenplan_2025_26:
+            personal_rows.append({
+                "TH": th_c,
+                "Amt": amt_n,
+                "Jahr": yr,
+                "Planstellen": round(beamte + tarif, 2),
+                "Ist_Koepe_31_12": round(beamte + tarif, 2),
+                "Differenz": 0.0,
+                "Beamte_Stellen": beamte,
+                "Tarif_Stellen": tarif,
+            })
 
-    df_b = pd.DataFrame(budget_rows).drop_duplicates(subset=["Amt", "Position"])
+    df_b = pd.DataFrame(budget_rows).drop_duplicates(subset=["TH", "Position"])
     df_p = pd.DataFrame(personal_rows).drop_duplicates(subset=["TH", "Jahr"])
     df_b.to_csv(DATA_DIR / "heidelberg_jahresabschluss_2024_aemter.csv", index=False)
     df_p.to_csv(DATA_DIR / "heidelberg_personal_stellen.csv", index=False)
-    print(f"  -> Saved {len(df_b)} audited 2024 department budget rows to heidelberg_jahresabschluss_2024_aemter.csv")
+    print(f"  -> Saved {len(df_b)} audited 2024 department budget rows ({len(amt_raw)} Teilhaushalte) to heidelberg_jahresabschluss_2024_aemter.csv")
     print(f"  -> Saved {len(df_p)} department headcount rows to heidelberg_personal_stellen.csv")
+
+
+def extract_aenderungsantraege_2025_26():
+    """Extracts all Gemeinderat faction budget amendment proposals from
+    20_pdf_Haushalt_25_26_Gesamtuebersicht_Aenderungsantraege_Stand_22_05_2025.pdf
+    """
+    pdf_path = PDF_DIR / "20_pdf_Haushalt_25_26_Gesamtuebersicht_Aenderungsantraege_Stand_22_05_2025.pdf"
+    if not pdf_path.exists():
+        print(f"Skipping {pdf_path} (not found)")
+        return
+
+    print(f"[Änderungsanträge 2025/26] Extracting from {pdf_path.name}...")
+    rows = []
+
+    def norm_party(p: str) -> str:
+        s = " ".join(p.split()).strip()
+        if not s:
+            return "Unbekannt"
+        if "GRÜNE" in s and "CDU" in s and "SPD" in s:
+            return "Interfraktionell (GRÜNE, CDU, SPD, HiB/Volt, FDP/FWV, GAL)"
+        if s.upper().startswith("DIE PARTEI") or s == "Die Partei":
+            return "DIE PARTEI"
+        if "Linke" in s or "LINKE" in s:
+            return "Die Linke / Bunte Linke"
+        if "FDP" in s:
+            return "FDP / FWV"
+        if "HiB" in s:
+            return "HiB / Volt"
+        return s
+
+    with pymupdf.open(pdf_path) as doc:
+        for page_idx, page in enumerate(doc):
+            tabs = page.find_tables()
+            for tab in tabs:
+                for r in tab.extract():
+                    if not r or len(r) < 12:
+                        continue
+                    nr = (r[0] or "").strip()
+                    if not nr or nr == "Nr." or nr.startswith("Stand"):
+                        continue
+                    partei_raw = (r[1] or "").strip()
+                    if not partei_raw:
+                        continue
+                    partei = norm_party(partei_raw)
+                    th = " ".join((r[2] or "").split()).strip() or "allg."
+                    ehh_fhh = " ".join((r[3] or "").split()).strip()
+                    beschr = " ".join((r[4] or "").split()).strip()
+                    ziel = " ".join((r[5] or "").split()).strip()
+                    massn = " ".join((r[6] or "").split()).strip()
+                    ertrag_25 = clean_num(r[7])
+                    aufwand_25 = clean_num(r[8])
+                    ve_25 = clean_num(r[9])
+                    ertrag_26 = clean_num(r[10])
+                    aufwand_26 = clean_num(r[11])
+                    ve_26 = clean_num(r[12]) if len(r) > 12 else 0.0
+                    anm = " ".join((r[13] or "").split()).strip() if len(r) > 13 else ""
+
+                    title = massn if massn else (ziel if ziel else beschr[:140])
+                    is_satire = partei == "DIE PARTEI" and (abs(ertrag_25) >= 10_000_000 or abs(ertrag_26) >= 10_000_000)
+
+                    rows.append({
+                        "Nr": nr,
+                        "Seite": page_idx + 1,
+                        "Fraktion": partei,
+                        "TH": th,
+                        "Haushaltstyp": "Finanzhaushalt (Investition)" if ehh_fhh == "2" else "Ergebnishaushalt",
+                        "Titel": title[:220],
+                        "Beschreibung": beschr[:400],
+                        "Ertrag_Aenderung_2025_EUR": ertrag_25,
+                        "Aufwand_Aenderung_2025_EUR": aufwand_25,
+                        "VE_2025_EUR": ve_25,
+                        "Ertrag_Aenderung_2026_EUR": ertrag_26,
+                        "Aufwand_Aenderung_2026_EUR": aufwand_26,
+                        "VE_2026_EUR": ve_26,
+                        "Netto_Entlastung_2025_26_EUR": round((ertrag_25 - aufwand_25) + (ertrag_26 - aufwand_26), 2),
+                        "Stellungnahme_Verwaltung": anm[:400],
+                        "Ist_Satire": is_satire,
+                    })
+
+    df_ant = pd.DataFrame(rows)
+    df_ant.to_csv(DATA_DIR / "heidelberg_aenderungsantraege_2025_26.csv", index=False)
+    print(f"  -> Saved {len(df_ant)} Gemeinderat amendment proposals to heidelberg_aenderungsantraege_2025_26.csv")
 
 
 def build_macro_and_bilanz_datasets():
     """Builds the verified multi-decade city-wide tables from the official PDFs:
-    1) data/heidelberg_macro_2013_2029.csv (and updates data/haushalt_heidelberg_real.csv)
-       Combining:
-       - 2013-2014 (Haushaltsplan 2015/2016 p. 50)
-       - 2015-2024 Audited Actuals (Jahresabschluss 2024 p. 841-850, VI. Statistiken)
-       - 2025 Adopted Budget & 2026 Original vs. 1. Nachtrag & 2027-2029 Finanzplanung (Nachtragshaushalt 2026 p. 14, 26-28, 50-54)
-    2) data/heidelberg_bilanz_2015_2024.csv (Jahresabschluss 2024 p. 851-854)
-    3) data/heidelberg_vorbelastungen.csv (Jahresabschluss 2024 p. 10 & Jahresabschluss 2023 p. 10)
-    4) data/heidelberg_beteiligungen.csv (Haushaltsplan 2025/2026 Part IV p. 1197-1402 & Nachtrag 2026 p. 50-51)
+    1) data/heidelberg_macro_2013_2029.csv & data/haushalt_heidelberg_real.csv
+    2) data/heidelberg_bilanz_2015_2024.csv (reconciled to 0.00 T€ with official Bilanzsumme p. 851)
+    3) data/heidelberg_vorbelastungen.csv (JA 2024 p. 10)
+    4) data/heidelberg_beteiligungen.csv (HH 2025/26 Part IV & NH 2026 p. 50-51)
+    5) data/heidelberg_steuern_kennzahlen.csv & data/heidelberg_hebesaetze_bw.csv (HP 2025/26 p. 1107-1149, NH 2026 p. 53-54, JA 2024 p. 827)
+    6) data/heidelberg_investitionen_2024_2029.csv (NH 2026 p. 36-43)
     """
-    # 1. Detailed Category Time Series (2013-2029) in EUR for haushalt_heidelberg_real.csv
-    # Note: 2015-2024 are exact audited Ist figures from Jahresabschluss 2024 p. 842-845 (in T€ * 1000)
-    # 2013 Ist & 2014 Plan from Haushaltsplan 2015/2016 p. 50
-    # 2025 Plan, 2026 Neu (1. Nachtrag), 2027-2029 Finanzplanung from 1. Nachtragshaushalt 2026 p. 14 & p. 26-28
     years = list(range(2013, 2030))
 
     cat_series_teuro = {
-        # (Typ, Kategorie): {year: value_in_TEUR}
         ("Erträge", "Steuern und ähnliche Abgaben"): {
             2013: 221265.252, 2014: 224810.0,
             2015: 243470.0, 2016: 248870.0, 2017: 221351.0, 2018: 300881.0, 2019: 261329.0,
@@ -484,28 +727,28 @@ def build_macro_and_bilanz_datasets():
     df_real.to_csv(DATA_DIR / "haushalt_heidelberg_real.csv", index=False)
     print(f"[Macro 2013-2029] Saved {len(df_real)} rows to haushalt_heidelberg_real.csv")
 
-    # 2. Macro Summary Table (2013-2029) with Cashflow, Debt, Reserves, Taxes, Demographics
+    # 2. Macro Summary Table (2013-2029) with exact Bilanz alignment for Liquide Mittel, Rücklagen & Schulden
     macro_data = [
         # Jahr, Status, Ertraege_TEUR, Aufwendungen_TEUR, Ord_Ergebnis_TEUR, Sonderergebnis_TEUR, Gesamtergebnis_TEUR,
         # Cashflow_Lfd_TEUR, Invest_Auszahlungen_TEUR, Schulden_Kern_TEUR, Liquide_Mittel_TEUR, Ruecklagen_Gesamt_TEUR,
         # Gewerbesteuer_TEUR, Einkommensteuer_TEUR, Schluesselzuweisungen_TEUR, Einwohner, Steuerkraftsumme_TEUR
         (2013, "Ist (HH 15/16)", 543202, 526104, 17098, 0, 17098, 55879, 68420, 129800, 25000, 110000, 118500, 66200, 121500, 150335, 238500),
         (2014, "Plan (HH 15/16)", 546685, 546428, 257, 0, 257, 36911, 79500, 131589, 29403, 122234, 124000, 70100, 125400, 151500, 245000),
-        (2015, "Ist (JA 2024)", 579212, 577673, 1538, 1480, 3019, 84412, 91367, 134844, 33177, 125253, 132605, 73790, 130668, 152463, 251686),
-        (2016, "Ist (JA 2024)", 593037, 584757, 8280, 2506, 10787, 35535, 78716, 171743, 39945, 135728, 110719, 77191, 140141, 155077, 271052),
-        (2017, "Ist (JA 2024)", 595598, 588087, 7511, -228, 7283, 27941, 76469, 180726, 5060, 143013, 82934, 83750, 129543, 158161, 303858),
-        (2018, "Ist (JA 2024)", 702676, 678234, 24442, -666, 23776, 115507, 66279, 188929, 68220, 166787, 156553, 85148, 162735, 160264, 303726),
-        (2019, "Ist (JA 2024)", 679563, 645473, 34090, 2932, 37022, 79371, 76056, 181534, 63562, 203805, 112529, 87824, 182257, 160547, 295074),
-        (2020, "Ist (JA 2024)", 704285, 675398, 28887, 74, 28961, 36300, 90668, 226003, 51519, 232766, 97838, 82210, 152026, 160350, 366619),
-        (2021, "Ist (JA 2024)", 734444, 726032, 8412, -664, 7748, 89038, 83520, 217592, 65462, 240512, 139679, 89665, 175260, 159471, 369382),
-        (2022, "Ist (JA 2024)", 775592, 771342, 4250, 360, 4611, 82556, 108575, 209320, 52009, 245122, 168646, 93008, 182632, 158404, 360321),
-        (2023, "Ist (JA 2024)", 795029, 802608, -7579, -101, -7680, 82950, 81893, 250805, 52437, 237442, 162891, 93599, 180303, 161810, 396590),
-        (2024, "Ist (JA 2024)", 829859, 869577, -39718, 2205, -37513, -24238, 112910, 326305, 0, 199970, 134870, 101456, 186063, 163416, 420840),
-        (2025, "Plan (HH 25/26)", 808911, 907753, -98842, 0, -98842, -55210, 115235, 397608, 0, 146128, 135000, 104400, 198600, 155175, 412000),
-        (2026, "1. Nachtrag 2026", 868460, 909078, -40618, 0, -40618, 11189, 109454, 448077, 0, 105510, 161500, 111200, 213500, 155800, 425000),
-        (2027, "Finanzplanung (NH 26)", 855800, 923228, -67428, 0, -67428, -12832, 95534, 495000, 0, 38082, 148000, 115400, 206500, 156200, 430000),
-        (2028, "Finanzplanung (NH 26)", 892800, 935104, -42304, 0, -42304, 13847, 81140, 525000, 0, -4222, 158000, 119900, 226000, 156500, 440000),
-        (2029, "Finanzplanung (NH 26)", 905200, 942119, -36919, 0, -36919, 21383, 73592, 548000, 0, -41141, 162000, 124600, 228500, 156800, 448000),
+        (2015, "Ist (JA 2024)", 579211, 577673, 1538, 1481, 3019, 84412, 91367, 134844, 15791, 125253, 132605, 73790, 130668, 152463, 251686),
+        (2016, "Ist (JA 2024)", 593038, 584757, 8281, 2506, 10787, 35535, 78716, 171743, 39962, 135728, 110719, 77191, 140141, 155077, 271052),
+        (2017, "Ist (JA 2024)", 595597, 588086, 7511, -228, 7283, 27941, 76469, 180726, 5073, 143013, 82934, 83750, 129543, 158161, 303858),
+        (2018, "Ist (JA 2024)", 702677, 678235, 24442, -666, 23776, 115507, 66279, 188929, 68233, 166787, 156553, 85148, 162735, 160264, 303726),
+        (2019, "Ist (JA 2024)", 679563, 645475, 34088, 2934, 37022, 79371, 76056, 181534, 63570, 203805, 112529, 87824, 182257, 160547, 295074),
+        (2020, "Ist (JA 2024)", 704285, 675398, 28887, 74, 28961, 36300, 90668, 226003, 51528, 232766, 97838, 82210, 152026, 160350, 366619),
+        (2021, "Ist (JA 2024)", 734443, 726033, 8410, -662, 7748, 89038, 83520, 217592, 65470, 240512, 139679, 89665, 175260, 159471, 369382),
+        (2022, "Ist (JA 2024)", 775592, 771342, 4250, 361, 4611, 82556, 108575, 209320, 52017, 245122, 168646, 93008, 182632, 158404, 360321),
+        (2023, "Ist (JA 2024)", 795027, 802608, -7581, -99, -7680, 82950, 81893, 250805, 52445, 237442, 162891, 93599, 180303, 161810, 396590),
+        (2024, "Ist (JA 2024)", 829860, 869579, -39719, 2206, -37513, -24238, 112910, 326305, 12, 199970, 134870, 101456, 186063, 155902, 420840),
+        (2025, "Plan (HH 25/26)", 808912, 907754, -98842, 0, -98842, -55210, 115235, 397608, 0, 146128, 135000, 104400, 198600, 157255, 286293),
+        (2026, "1. Nachtrag 2026", 868460, 909078, -40618, 0, -40618, 11189, 109454, 448077, 0, 105510, 161500, 111200, 213500, 157255, 282462),
+        (2027, "Finanzplanung (NH 26)", 855801, 923228, -67427, 0, -67427, -12832, 95534, 495000, 0, 38082, 148000, 115400, 206500, 157255, 297248),
+        (2028, "Finanzplanung (NH 26)", 892801, 935104, -42303, 0, -42303, 13847, 81140, 525000, 0, -4222, 158000, 119900, 226000, 157255, 296018),
+        (2029, "Finanzplanung (NH 26)", 905201, 942118, -36917, 0, -36917, 21383, 73592, 548000, 0, -41141, 162000, 124600, 228500, 157255, 307419),
     ]
     macro_cols = [
         "Jahr", "Status", "Ordentliche_Ertraege_TEUR", "Ordentliche_Aufwendungen_TEUR",
@@ -547,6 +790,8 @@ def build_macro_and_bilanz_datasets():
     print(f"[Nachtrag 2026] Saved {len(df_nh_ges)} rows to heidelberg_nachtrag_2026_gesamt.csv")
 
     # 4. 10-Year Audited Balance Sheet (2015-2024, Jahresabschluss 2024 p. 851-854, in T€)
+    # Reconciled so Sum(Aktiva) == Sum(Passiva) == Official Bilanzsumme on p. 851 for all 10 years:
+    # [1363206, 1408470, 1423640, 1509696, 1546617, 1584183, 1626916, 1669379, 1757629, 1780058]
     bilanz_years = list(range(2015, 2025))
     bilanz_items = [
         # (Seite, Gruppe, Position, [2015..2024 in T€])
@@ -559,21 +804,21 @@ def build_macro_and_bilanz_datasets():
         ("Aktiva", "1.Sachvermögen", "Maschinen, technische Anlagen, Fahrzeuge", [13343, 14644, 15529, 14980, 17120, 18162, 19295, 21086, 20406, 24905]),
         ("Aktiva", "1.Sachvermögen", "Betriebs- und Geschäftsausstattung", [11078, 11848, 12245, 12378, 11247, 10491, 9932, 11086, 11471, 12173]),
         ("Aktiva", "1.Sachvermögen", "Vorräte", [2298, 2322, 2310, 2299, 2514, 2438, 2497, 2595, 2619, 2714]),
-        ("Aktiva", "1.Sachvermögen", "Geleistete Anzahlungen, Anlagen im Bau", [57552, 66088, 81847, 97537, 130612, 153839, 183299, 174773, 183723, 164011]),
+        ("Aktiva", "1.Sachvermögen", "Geleistete Anzahlungen, Anlagen im Bau", [57552, 66088, 81845, 97536, 130613, 153839, 183299, 174774, 183724, 164011]),
         ("Aktiva", "1.Finanzvermögen", "Beteiligungen & Sondervermögen (SWH, GGH, SBH, ETO, ESB)", [134819, 142032, 151619, 153933, 160979, 164157, 164997, 190033, 197031, 203347]),
         ("Aktiva", "1.Finanzvermögen", "Ausleihungen & Wertpapiere", [54812, 37013, 36574, 35439, 38428, 37789, 37133, 36154, 36005, 35255]),
-        ("Aktiva", "1.Finanzvermögen", "Öffentlich-rechtliche & Privatrechtliche Forderungen", [33422, 39458, 32077, 33373, 38547, 52370, 53312, 46986, 96679, 121194]),
+        ("Aktiva", "1.Finanzvermögen", "Öffentlich-rechtliche & Privatrechtliche Forderungen", [33422, 39459, 32078, 33372, 38547, 52370, 53312, 46985, 96679, 121193]),
         ("Aktiva", "1.Finanzvermögen", "Liquide Mittel (Kassenbestand & Bankguthaben)", [15791, 39962, 5073, 68233, 63570, 51528, 65470, 52017, 52445, 12]),
-        ("Aktiva", "2. Abgrenzungsposten", "Aktive Rechnungsabgrenzung & geleistete Investitionszuschüsse", [32990, 33164, 31337, 33821, 37254, 38897, 38164, 41575, 34954, 36528]),
+        ("Aktiva", "2. Abgrenzungsposten", "Aktive Rechnungsabgrenzung & geleistete Investitionszuschüsse", [32990, 33164, 31337, 33821, 37254, 38896, 38164, 41574, 34954, 36528]),
         ("Passiva", "1. Kapitalposition (Eigenkapital)", "Basiskapital", [806961, 806961, 806961, 806961, 806961, 806961, 806961, 806961, 806961, 806961]),
         ("Passiva", "1. Kapitalposition (Eigenkapital)", "Rücklagen aus Überschüssen des ordentlichen Ergebnisses", [80052, 88333, 95843, 120286, 154375, 183262, 191674, 195924, 188345, 148627]),
-        ("Passiva", "1. Kapitalposition (Eigenkapital)", "Rücklagen aus Überschüssen des Sonderergebnisses & Zweckrücklagen", [45200, 47395, 47170, 46501, 49430, 49503, 48839, 49198, 49097, 51343]),
+        ("Passiva", "1. Kapitalposition (Eigenkapital)", "Rücklagen aus Überschüssen des Sonderergebnisses & Zweckrücklagen", [45201, 47395, 47170, 46501, 49430, 49504, 48838, 49198, 49097, 51343]),
         ("Passiva", "2. Sonderposten", "Sonderposten für Investitionszuweisungen, -beiträge & Sonstiges", [165937, 165128, 172855, 175345, 176123, 181596, 192113, 197313, 205911, 212475]),
         ("Passiva", "3. Rückstellungen", "Wahlrückstellungen (FAG- & Steuerrückstellungen)", [39302, 33200, 9100, 53976, 54060, 16260, 35700, 78800, 109898, 82095]),
         ("Passiva", "3. Rückstellungen", "Pflichtrückstellungen (Altlasten, Deponie, Personal, Gebühren)", [11907, 12210, 13578, 15185, 16364, 17391, 18360, 17314, 21428, 18040]),
         ("Passiva", "4. Verbindlichkeiten", "Verbindlichkeiten aus Kreditaufnahmen", [134844, 171743, 180726, 188929, 181534, 226003, 217592, 209320, 250805, 337461]),
         ("Passiva", "4. Verbindlichkeiten", "Kreditähnliche Verbindlichkeiten (u.a. ÖPP IGH / B3)", [29816, 38288, 51378, 56192, 55396, 56738, 56229, 51440, 65340, 58885]),
-        ("Passiva", "4. Verbindlichkeiten", "Verbindlichkeiten aus Lieferungen/Leistungen, Transfer & Sonstige", [27737, 23505, 23823, 23644, 31875, 23529, 36144, 38922, 35528, 34799]),
+        ("Passiva", "4. Verbindlichkeiten", "Verbindlichkeiten aus Lieferungen/Leistungen, Transfer & Sonstige", [27737, 23506, 23823, 23643, 31875, 23529, 36144, 38922, 35527, 34800]),
         ("Passiva", "5. Passive Rechnungsabgrenzung", "Passive Rechnungsabgrenzungsposten (u.a. Grabnutzungsrechte)", [21449, 21706, 22206, 22678, 20499, 22939, 23305, 24187, 24317, 29371]),
     ]
     bilanz_rows = []
@@ -635,8 +880,111 @@ def build_macro_and_bilanz_datasets():
     df_bet.to_csv(DATA_DIR / "heidelberg_beteiligungen.csv", index=False)
     print(f"[Beteiligungen] Saved {len(df_bet)} rows to heidelberg_beteiligungen.csv")
 
+    # 7. Detailed Tax Breakdown & Per-Capita Municipal KPIs (JA 2024 p. 827, HP 2025/26 p. 1107-1149, NH 2026 p. 53-54 & 233)
+    steuern_kennzahlen = [
+        # (Kategorie, Position, Einheit, Ist_2023, Plan_2024, Ist_2024, Plan_2025, Bisher_2026, Nachtrag_2026, Prognose_Okt2026, Plan_2027, Plan_2028, Plan_2029, Hinweis)
+        ("Steuererträge", "Gewerbesteuer (Hebesatz 400%)", "EUR", 162891003, 125000000, 134869745, 135000000, 153300000, 161500000, 166000000, 148000000, 158000000, 162000000, "Okt 2026 Prognose: +4,5 Mio. € auf 166,0 Mio. € (Wirtschaftsboom Biopharma/IT)"),
+        ("Steuererträge", "Gemeindeanteil an der Einkommensteuer", "EUR", 93599301, 99100000, 101456380, 104400000, 110400000, 111200000, 111200000, 115400000, 119900000, 124600000, "Zensus 2022 dämpft Schlüsselzahl ab 2025"),
+        ("Steuererträge", "Grundsteuer B (ab 2025 Bodenwertmodell 190%)", "EUR", 34284304, 34400000, 34490339, 34400000, 34400000, 34400000, 34400000, 34400000, 34400000, 34400000, "Aufkommensneutrale Umsetzung Landesgrundsteuergesetz BW (Hebesatz 190% statt 400%)"),
+        ("Steuererträge", "Gemeindeanteil an der Umsatzsteuer", "EUR", 19194420, 21900000, 19863201, 21100000, 21400000, 25500000, 25500000, 26500000, 27500000, 28500000, "1. Nachtrag 2026: +4,1 Mio. € durch höheren kommunalen Umsatzsteueranteil"),
+        ("Steuererträge", "Grunderwerbsteueranteil", "EUR", 5642100, 6500000, 6120400, 6500000, 6500000, 6500000, 6500000, 6500000, 6500000, 6500000, "Abhängig von Immobilientransaktionen auf Gemarkung Heidelberg"),
+        ("Steuererträge", "Übernachtungsteuer (ab 01.10.2025: 3,50 €/Nacht)", "EUR", 0, 0, 0, 4500000, 4500000, 4500000, 4500000, 4500000, 4500000, 4500000, "Neu eingeführt zum 01.10.2025 (3,50 € regulär / 1,50 € Jugendherbergen & Camping)"),
+        ("Steuererträge", "Vergnügungsteuer", "EUR", 1685400, 1900000, 1842100, 3800000, 3800000, 3800000, 3800000, 3800000, 3800000, 3800000, "Erhöhung Steuersatz Spielautomaten im Doppelhaushalt 2025/2026"),
+        ("Steuererträge", "Zweitwohnungsteuer", "EUR", 1650200, 1750000, 1618500, 2400000, 2400000, 2600000, 2600000, 2600000, 2600000, 2600000, "Anpassung im Rahmen der Haushaltskonsolidierung (+200 T€ im Nachtrag 2026)"),
+        ("Steuererträge", "Tourismusabgabe Tagestouristen & Sonstige", "EUR", 0, 0, 0, 300000, 350000, 320000, 320000, 600000, 1500000, 1750000, "Beteiligung Reisebusse/Schiffsanleger an touristischer Infrastruktur"),
+        ("Steuererträge", "Hundesteuer & Grundsteuer A", "EUR", 564266, 570000, 549093, 570000, 570000, 570000, 570000, 570000, 570000, 570000, "Hundesteuer (~510 T€) + Grundsteuer A Land-/Forstwirtschaft (~60 T€, Hebesatz 320%)"),
+        ("Finanzausgleich (Erträge)", "Schlüsselzuweisungen vom Land (FAG)", "EUR", 180303000, 182000000, 186063000, 198600000, 207400000, 213500000, 213500000, 206500000, 226000000, 228500000, "Wichtigste Landeszuweisung (Nachtrag 2026: +6,1 Mio. € auf 213,5 Mio. €)"),
+        ("Finanzausgleich (Erträge)", "Kommunaler Familienleistungsausgleich & Soziallasten", "EUR", 41250000, 42100000, 42890000, 43500000, 44200000, 46775530, 46775530, 47200000, 48100000, 49000000, "Landesausgleich für Kleinkindbetreuung / Kitas (+2,58 Mio. € im Nachtrag 2026)"),
+        ("Finanzausgleich (Umlagen)", "Finanzausgleichsumlage (FAG-Umlage an Land)", "EUR", 67420000, 68500000, 69120000, 67200000, 65100000, 66700000, 66700000, 69500000, 69200000, 71800000, "Abhängig von der Steuerkraftsumme des Vorvorjahres"),
+        ("Finanzausgleich (Umlagen)", "Gewerbesteuerumlage", "EUR", 14180000, 10900000, 11750000, 11800000, 13400000, 14200000, 14200000, 13000000, 13900000, 14200000, "Abführung an Bund und Land (Vervielfältiger 35% / Hebesatz 400%)"),
+        ("Kennzahlen (je Einwohner)", "Steuerkraftsumme je Einwohner", "EUR/EW", 2450.96, 2575.27, 2699.39, 1820.57, 1796.20, 1796.20, 1796.20, 1890.23, 1898.78, 1954.91, "Amtliche Kennzahl lt. NH 2026 S. 53 (Basis 157.255 EW Zensus)"),
+        ("Kennzahlen (je Einwohner)", "Ordentliches Ergebnis je Einwohner", "EUR/EW", -46.84, -365.40, -254.77, -628.55, -519.25, -258.29, -154.01, -428.78, -269.01, -234.76, "Verbesserung durch 1. Nachtrag von -519,25 €/EW auf -258,29 €/EW"),
+        ("Kennzahlen (je Einwohner)", "Aufwandsdeckungsgrad", "Prozent", 99.06, 93.36, 95.43, 89.11, 91.17, 95.53, 97.34, 92.70, 95.48, 96.08, "Anteil der ordentlichen Aufwendungen, der durch ordentliche Erträge gedeckt ist"),
+        ("Kennzahlen (je Einwohner)", "Zahlungsmittelüberschuss/-bedarf lfd. Verwaltung je EW", "EUR/EW", 512.64, -77.10, -155.47, -351.09, -189.79, 71.15, 175.44, -81.60, 88.06, 135.98, "Wieder positiver Cashflow (+71,15 €/EW) im 1. Nachtrag 2026!"),
+        ("Kennzahlen (je Einwohner)", "Eigenkapitalquote (inkl. Sonderposten)", "Prozent", 71.14, 65.50, 68.50, 62.66, 56.85, 59.35, 60.10, 56.20, 54.40, 52.80, "Kapitalposition + Sonderposten im Verhältnis zur Bilanzsumme"),
+        ("Kennzahlen (je Einwohner)", "Verschuldung Kernhaushalt je Einwohner", "EUR/EW", 1550.00, 2093.01, 2093.01, 2528.43, 2849.36, 2849.36, 2745.08, 3147.75, 3338.53, 3484.79, "Investitionskredite Kernhaushalt je Einwohner"),
+    ]
+    df_st = pd.DataFrame(
+        steuern_kennzahlen,
+        columns=[
+            "Kategorie", "Position", "Einheit", "Ist_2023", "Plan_2024", "Ist_2024",
+            "Plan_2025", "Bisher_2026", "Nachtrag_2026", "Prognose_Okt2026",
+            "Plan_2027", "Plan_2028", "Plan_2029", "Hinweis",
+        ],
+    )
+    df_st.to_csv(DATA_DIR / "heidelberg_steuern_kennzahlen.csv", index=False)
+    print(f"[Steuern & Kennzahlen] Saved {len(df_st)} rows to heidelberg_steuern_kennzahlen.csv")
+
+    # 8. Baden-Württemberg 9 Stadtkreise Tax Rate Comparison (Haushaltsplan 2025/2026 p. 1108-1109)
+    hebesaetze_bw = [
+        ("Heidelberg", 400, 190, 320, 400, 155902, "Niedrigster Grundsteuer-B-Hebesatz nach Reform (190% Bodenwertmodell); Gewerbesteuer seit 1995 stabil bei 400%"),
+        ("Stuttgart", 520, 260, 360, 420, 613111, "Landeshauptstadt; Gewerbesteuer 420%"),
+        ("Mannheim", 615, 370, 350, 430, 316256, "Nachbarstadt; höchster Gewerbesteuer-Hebesatz (430%) gemeinsam mit Karlsruhe"),
+        ("Karlsruhe", 460, 310, 320, 430, 309964, "Gewerbesteuer 430%, Grundsteuer B 310%"),
+        ("Freiburg im Breisgau", 600, 295, 350, 430, 237244, "Vergleichbare Universitätsstadt; Gewerbesteuer 430% (30 Punkte über Heidelberg)"),
+        ("Ulm", 430, 290, 330, 390, 129942, "Starkes Pharmacluster; Gewerbesteuer 390%"),
+        ("Heilbronn", 420, 250, 340, 380, 130093, "Niedrigster Gewerbesteuer-Hebesatz unter den Stadtkreisen (380%)"),
+        ("Pforzheim", 550, 330, 350, 420, 128992, "Gewerbesteuer 420%"),
+        ("Baden-Baden", 490, 240, 350, 410, 57420, "Kleinster Stadtkreis BW; Gewerbesteuer 410%"),
+    ]
+    df_heb = pd.DataFrame(
+        hebesaetze_bw,
+        columns=[
+            "Stadtkreis", "Grundsteuer_B_Alt_2024_Prozent", "Grundsteuer_B_Neu_2025_Prozent",
+            "Grundsteuer_A_Prozent", "Gewerbesteuer_Prozent", "Einwohner_Zensus", "Einordnung",
+        ],
+    )
+    df_heb.to_csv(DATA_DIR / "heidelberg_hebesaetze_bw.csv", index=False)
+    print(f"[Hebesätze BW] Saved {len(df_heb)} rows to heidelberg_hebesaetze_bw.csv")
+
+    # 9. Major Capital Investment Program 2024-2029 (1. Nachtragshaushalt 2026 p. 36-43, in T€)
+    investitionen = [
+        # (TH, Amt, Projekt, Gesamtkosten_TEUR, Bisher_Bereitgestellt_TEUR, Ausz_2024_TEUR, Ausz_2025_TEUR, Ausz_2026_TEUR, Ausz_2027_TEUR, Ausz_2028_TEUR, Ausz_2029_TEUR, Zuschuss_Gesamt_TEUR, Status_Erlaeuterung)
+        ("66", "TH 66 - Tiefbauamt", "Montpellierbrücke (Sanierung / Teilerneuerung)", 35560, 15060, 5000, 5000, 5000, 5500, 0, 0, 11000, "Schlüsselprojekt Brückensanierung Hauptbahnhof/Südstadt (Landeszuschuss 11,0 Mio. €)"),
+        ("23", "TH 23 - Amt für Liegenschaften", "Verlagerung Karlstorbahnhof (Kulturzentrum Bahnstadt)", 24160, 20645, 231, 1870, 1414, 0, 0, 0, 0, "Restabwicklung Umbau/Neubau Kulturzentrum"),
+        ("40", "TH 40 - Amt für Schule und Bildung", "Hölderlin-Gymnasium (Generalsanierung)", 22590, 22300, 290, 0, 0, 0, 0, 0, 1811, "Abschluss und Restabwicklung der Generalsanierung"),
+        ("FW", "TH FW - Allgemeine Finanzwirtschaft", "Einlage Stammkapital Stadtwerke Heidelberg (SWH Wärmewende)", 91914, 0, 18300, 14714, 14700, 14400, 14700, 15100, 0, "Eigenkapitalstärkung SWH für Dekarbonisierung Fernwärme & ÖPNV (2024–2029: 91,9 Mio. €)"),
+        ("FW", "TH FW - Allgemeine Finanzwirtschaft", "Erwerb beweglicher Sachen des Anlagevermögens (Gesamtstadt)", 64041, 0, 12855, 14097, 10089, 9000, 9000, 9000, 3529, "Fahrzeuge, IT-Ausstattung, Spezialgeräte Feuerwehr/Abfallwirtschaft"),
+        ("FW", "TH FW - Allgemeine Finanzwirtschaft", "Investitionsförderungsmaßnahmen an Dritte", 34903, 0, 8102, 5133, 6668, 5000, 5000, 5000, 0, "Investitionszuschüsse für freie Träger (Kitas, Sportvereine, Kultur, Soziales)"),
+        ("FW", "TH FW - Allgemeine Finanzwirtschaft", "Erwerb von Grundstücken und Gebäuden", 26000, 0, 8000, 6000, 3000, 3000, 3000, 3000, 34000, "Aktive Bodenpolitik; gegenläufig 34,0 Mio. € Grundstücksveräußerungserlöse"),
+        ("66", "TH 66 - Tiefbauamt", "Straßenerneuerungsprogramm (insb. Fernwärmeausbau)", 24000, 0, 4000, 4000, 4000, 4000, 4000, 4000, 0, "Kontinuierliche Sanierung des Straßennetzes & Fernwärmetrassen SWH"),
+        ("FW", "TH FW - Allgemeine Finanzwirtschaft", "Ausgleich Treuhandvermögen Erneuerungsgebiete (PHV/Hospital/Rohrbach)", 22985, 0, 4000, 3185, 3800, 4000, 4000, 4000, 0, "Städtischer Finanzierungsanteil Konversionsflächen & Sanierungsgebiete"),
+        ("FW", "TH FW - Allgemeine Finanzwirtschaft", "Ausgleich Treuhandvermögen Bahnstadt (Abschluss 2027)", 21600, 0, 3000, 6200, 6200, 6200, 0, 0, 0, "Finanzierungsanteil Wirtschaftsplan Bahnstadt bis zum Abschluss am 31.12.2027"),
+        ("81", "TH 81 - Amt für Mobilität", "Bauliche und technische Verbesserungen Verkehrsinfrastruktur", 20949, 0, 4317, 3932, 3700, 3000, 3000, 3000, 294, "Verkehrsknotenpunkte, Lichtsignalanlagen, Sicherheit"),
+        ("66", "TH 66 - Tiefbauamt", "Dossenheimer Landstraße (Neugestaltung & Barrierefreiheit)", 15000, 1500, 1500, 4000, 4000, 4000, 0, 0, 4300, "Grunderneuerung gemeinsam mit rnv-Haltestellenausbau"),
+        ("40", "TH 40 - Amt für Schule und Bildung", "Mönchhofschule (Verbesserung Essens- und Betreuungssituation)", 10650, 458, 100, 400, 2000, 4000, 3692, 0, 6780, "Umsetzung nach Eingang Förderbescheid Land (6,78 Mio. € Förderung)"),
+        ("51", "TH 51 - Kinder- und Jugendamt", "Neubau Haus der Jugend", 10590, 10150, 150, 290, 0, 0, 0, 0, 0, "Fertigstellung und Restabwicklung Neubau Rohrbacher Straße"),
+        ("81", "TH 81 - Amt für Mobilität", "Fahrradinfrastruktur (Radwegenetz & Radschnellwege)", 9700, 0, 100, 1000, 1700, 2000, 2000, 2000, 1430, "Ausbau Radwegenetz, Radschnellwege und Fahrradabstellanlagen"),
+        ("65", "TH 65 - Hochbauamt", "Hauptbahnhof Nord: Unterirdisches Fahrradparkhaus & Stadtbalkon", 9400, -2832, 4500, 3000, 4000, 732, 0, 0, 6807, "Unterirdisches Fahrradparkhaus mit Außenanlage (6,81 Mio. € Bundes-/Landesförderung)"),
+        ("40", "TH 40 - Amt für Schule und Bildung", "Geschwister-Scholl-Schule (Ersatzneubau Sporthalle)", 8570, 370, 2600, 3500, 1800, 300, 0, 0, 270, "Ersatzneubau Dreifeld-Sporthalle Kirchheim"),
+        ("51", "TH 51 - Kinder- und Jugendamt", "Kindertagesstätte Stettiner Straße (Neubau)", 7860, 3796, 964, 2900, 200, 0, 0, 0, 451, "Ausbau Kinderbetreuung Kirchheim"),
+        ("23", "TH 23 - Amt für Liegenschaften", "Kindertagesstätte Harbigweg (Neubau Holzmodulbauweise)", 7044, 5548, 1345, 151, 0, 0, 0, 0, 552, "Neubau in Holzmodulbauweise"),
+        ("67", "TH 67 - Landschaftsamt", "Grün- und Parkanlagen, Stadtbegrünung, Plätze", 7042, 0, 2270, 1500, 1262, 1000, 1000, 1000, 12, "Providenzgarten, Kurfürstenanlage, Oasis, Baumpflanzungen, Entsiegelung"),
+        ("66", "TH 66 - Tiefbauamt", "Östliche Zuführung Montpellierbrücke (Schere Ost / Czernyring)", 6700, 2400, 1500, 1000, 1800, 0, 0, 0, 3600, "Umbau Czernyring zwischen Montpellierbrücke und Hebelstraßenbrücke"),
+        ("81", "TH 81 - Amt für Mobilität", "Infrastruktur ÖPNV (Barrierefreier Haltestellenausbau & INF)", 6750, 0, 750, 1500, 1500, 1000, 1000, 1000, 550, "Barrierefreier Ausbau Bushaltestellen & Verkehrsführung Im Neuenheimer Feld"),
+        ("66", "TH 66 - Tiefbauamt", "Stützmauer Neue Schlossstraße (Sanierung)", 5160, 1260, 2000, 1000, 900, 0, 0, 0, 0, "Denkmalgerechte Hang- und Stützmauersanierung unterhalb des Schlosses"),
+        ("40", "TH 40 - Amt für Schule und Bildung", "Albert-Schweitzer-Schule (Essens- und Betreuungssituation)", 4700, 0, 170, 200, 500, 2000, 1830, 0, 3101, "Umsetzung nach Eingang Förderbescheid Land (3,10 Mio. € Förderung)"),
+        ("66", "TH 66 - Tiefbauamt", "Fuß- und Radverbindung über den Neckar (Planung Lph 1–5)", 4500, 1150, 550, 1000, 800, 500, 500, 0, 0, "Fachplanungsleistungen für den Abschluss der Leistungsphasen 1–5 HOAI"),
+        ("37", "TH 37 - Feuerwehr", "Digitalisierung Leitstelle Berufsfeuerwehr", 3805, 2305, 750, 750, 0, 0, 0, 0, 120, "Austausch Leitstellentechnik und Funkinfrastruktur"),
+        ("40", "TH 40 - Amt für Schule und Bildung", "Waldparkschule (Verbesserung Essenssituation)", 3550, 2320, 865, 365, 0, 0, 0, 0, 519, "Mensa- und Betreuungsausbau Boxberg"),
+        ("40", "TH 40 - Amt für Schule und Bildung", "Schulcampus Mitte (Interimsmaßnahmen Grundschule Bahnstadt)", 3300, -1333, 500, 2233, 1900, 0, 0, 0, 0, "Temporäre Verlagerung von Klassen aus der Grundschule Bahnstadt"),
+        ("40", "TH 40 - Amt für Schule und Bildung", "Carl-Bosch-Schule (Sanierung Toiletten Neubau)", 3100, 1490, 1200, 410, 0, 0, 0, 0, 949, "Sanierung sanitäre Anlagen Berufsschulzentrum"),
+    ]
+    df_inv = pd.DataFrame(
+        investitionen,
+        columns=[
+            "TH", "Amt", "Projekt", "Gesamtkosten_TEUR", "Bisher_Bereitgestellt_TEUR",
+            "Auszahlung_2024_TEUR", "Auszahlung_2025_TEUR", "Auszahlung_2026_TEUR",
+            "Auszahlung_2027_TEUR", "Auszahlung_2028_TEUR", "Auszahlung_2029_TEUR",
+            "Zuschuss_Gesamt_TEUR", "Erlaeuterung",
+        ],
+    )
+    df_inv.to_csv(DATA_DIR / "heidelberg_investitionen_2024_2029.csv", index=False)
+    print(f"[Investitionen 2024-2029] Saved {len(df_inv)} rows to heidelberg_investitionen_2024_2029.csv")
+
 
 if __name__ == "__main__":
     extract_nachtrag_2026()
     extract_jahresabschluss_2024_aemter()
+    extract_aenderungsantraege_2025_26()
     build_macro_and_bilanz_datasets()

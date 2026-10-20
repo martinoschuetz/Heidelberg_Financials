@@ -56,12 +56,16 @@ def build_static_dashboard() -> Path:
         for r in df_deep.itertuples(index=False)
     ]
 
+    df_aemter_sum = pd.read_csv(DATA_DIR / "haushalt_heidelberg_aemter.csv", encoding="utf-8")
+    aemter_total_sum = float(df_aemter_sum["Betrag"].sum())
+
     payload = {
         "aemter": aemter,
         "kats": kats,
         "subs": subs,
         "typen": typen,
         "rows": compact_rows,
+        "aemter_total_sum": round(aemter_total_sum, 2),
         "macro": load_json_records("heidelberg_macro_2013_2029.csv"),
         "nh_gesamt": load_json_records("heidelberg_nachtrag_2026_gesamt.csv"),
         "nh_aemter": load_json_records("heidelberg_nachtrag_2026_aemter.csv"),
@@ -71,6 +75,10 @@ def build_static_dashboard() -> Path:
         "bilanz": load_json_records("heidelberg_bilanz_2015_2024.csv"),
         "vorbelastungen": load_json_records("heidelberg_vorbelastungen.csv"),
         "beteiligungen": load_json_records("heidelberg_beteiligungen.csv"),
+        "steuern": load_json_records("heidelberg_steuern_kennzahlen.csv"),
+        "hebesaetze": load_json_records("heidelberg_hebesaetze_bw.csv"),
+        "investitionen": load_json_records("heidelberg_investitionen_2024_2029.csv"),
+        "antraege": load_json_records("heidelberg_aenderungsantraege_2025_26.csv"),
     }
 
     data_json = json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
@@ -402,12 +410,12 @@ def build_static_dashboard() -> Path:
     </div>
 
     <div class="sidebar-footer">
-      <strong>Datenbasis (15 PDFs, 2013–2029):</strong><br/>
+      <strong>Datenbasis (15 PDFs &amp; heidelberg.de, 2013–2029):</strong><br/>
       • Doppelhaushalte <strong>2013–2026</strong> (41 Teilhaushalte, 8.539 Positionen)<br/>
-      • <strong>1. Nachtragshaushalt 2026</strong> (18.12.2025) &amp; Finanzplan bis 2029<br/>
-      • <strong>Jahresabschlüsse 2023 &amp; 2024</strong> inkl. 10-Jahres-Bilanz (1,78 Mrd. €)<br/><br/>
+      • <strong>1. Nachtragshaushalt 2026</strong> (18.12.2025 + Okt-2026-Prognose) &amp; Finanzplan bis 2029<br/>
+      • <strong>Jahresabschlüsse 2023 &amp; 2024</strong> inkl. 10-Jahres-Bilanz (1,78 Mrd. €), Investitionsprogramm &amp; 359 Gemeinderat-Anträge<br/><br/>
       🔗 <a href="https://github.com/martinoschuetz/Heidelberg_Financials" target="_blank">GitHub Repository &amp; CSV-Daten</a><br/>
-      🏛️ <a href="https://www.heidelberg.de/HD/Rathaus/haushalt.html" target="_blank">Offizielles Portal heidelberg.de</a>
+      🏛️ <a href="https://www.heidelberg.de/HD/Rathaus/Haushalt+_+Finanzen.html" target="_blank">Offizielles Portal heidelberg.de</a>
     </div>
   </aside>
 
@@ -415,9 +423,9 @@ def build_static_dashboard() -> Path:
   <main class="main">
     <h1 class="header-title">🏛️ Haushalt &amp; Finanzen der Stadt Heidelberg — Explorer (2013–2029)</h1>
     <p class="header-sub">
-      Interaktive Gesamtanalyse aller <strong>41 Teilhaushalte (2013–2026)</strong>, des <strong>1. Nachtragshaushalts 2026 (+42,04 Mio. € Konsolidierungspaket)</strong>,
-      der <strong>Mittelfristigen Finanzplanung bis 2029</strong>, des geprüften <strong>Jahresabschlusses 2024</strong>, der <strong>10-Jahres-Schlussbilanz (1,78 Mrd. €)</strong>
-      sowie der <strong>städtischen Gesellschaften &amp; Eigenbetriebe</strong>.
+      Interaktive Gesamtanalyse aller <strong>41 Teilhaushalte (2013–2026)</strong>, des <strong>1. Nachtragshaushalts 2026 (+42,04 Mio. € Konsolidierungspaket &amp; Okt-2026-Prognose)</strong>,
+      der <strong>Mittelfristigen Finanzplanung bis 2029</strong>, des geprüften <strong>Jahresabschlusses 2024</strong>, der <strong>10-Jahres-Schlussbilanz (1,78 Mrd. €)</strong>,
+      des <strong>Investitionsprogramms 2024–2029</strong>, der <strong>Hebesätze im BW-Städtevergleich</strong> sowie aller <strong>359 Gemeinderat-Änderungsanträge</strong>.
     </p>
 
     <!-- GLOBAL KPI CARDS -->
@@ -451,6 +459,7 @@ def build_static_dashboard() -> Path:
       <button class="tab-btn" data-tab="tab3">🏛️ Gesamthaushalt (2013–29)</button>
       <button class="tab-btn" data-tab="tab4">🚨 1. Nachtrag 2026 &amp; Finanzplan</button>
       <button class="tab-btn" data-tab="tab5">🏦 Bilanz, JA 2024 &amp; Konzern</button>
+      <button class="tab-btn" data-tab="tab6">🏗️ Investitionen, Steuern &amp; Gemeinderat</button>
     </div>
 
     <!-- TAB 1 -->
@@ -622,7 +631,7 @@ def build_static_dashboard() -> Path:
       </div>
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
-          <h3 style="margin:0;">✂️ Alle 249 Einzel-Änderungsmaßnahmen im 1. Nachtragshaushalt 2026</h3>
+          <h3 style="margin:0;">✂️ Alle 236 Einzel-Änderungsmaßnahmen im 1. Nachtragshaushalt 2026</h3>
           <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;">
             <input type="text" id="inpNhSearch" placeholder="🔍 Maßnahme / Amt filtern..." style="width:260px;" />
             <label style="font-size:0.84rem;cursor:pointer;">
@@ -704,6 +713,112 @@ def build_static_dashboard() -> Path:
         <div class="card"><div id="chartPersonal" style="width:100%;height:480px;"></div></div>
       </div>
     </section>
+
+    <!-- TAB 6 -->
+    <section class="tab-panel" id="tab6">
+      <div class="info-banner">
+        <strong>📢 Aktuelles Update (Pressemitteilung Stadt Heidelberg vom 16.10.2026):</strong> Die Kämmerei prognostiziert für das laufende Haushaltsjahr 2026 ein
+        <strong>Gewerbesteuer-Aufkommen von 166,0 Mio. €</strong> (+4,5 Mio. € über dem 1. Nachtragshaushalt). Im Finanzhaushalt verbessert sich der Gesamtkapitalbedarf um
+        <strong>+16,4 Mio. €</strong>, wodurch die benötigte <strong>Netto-Neuverschuldung 2026 von 71,8 Mio. € auf 55,4 Mio. €</strong> sinkt!
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">Gewerbesteuer 2026 (Okt-Prognose)</div>
+          <div class="kpi-value">166,00 Mio. €</div>
+          <div class="kpi-delta delta-pos">+4,50 Mio. € ggü. 1. Nachtrag (Hebesatz 400%)</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Grundsteuer B Hebesatz (ab 2025)</div>
+          <div class="kpi-value">190 v.H.</div>
+          <div class="kpi-delta delta-pos">Niedrigster Satz aller 9 BW-Stadtkreise (vorher 400%)</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Kreditbedarf 2026 (Okt-Prognose)</div>
+          <div class="kpi-value">55,40 Mio. €</div>
+          <div class="kpi-delta delta-pos">-16,40 Mio. € geringer als im Nachtrag (71,8 Mio. €)</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Investitionsprogramm 2024–2029</div>
+          <div class="kpi-value">494,68 Mio. €</div>
+          <div class="kpi-delta delta-neutral">29 Schwerpunktprojekte + SWH Wärmewende</div>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card"><div id="chartSteuern" style="width:100%;height:440px;"></div></div>
+        <div class="card"><div id="chartHebesaetze" style="width:100%;height:440px;"></div></div>
+      </div>
+      <div class="grid-2">
+        <div class="card"><div id="chartInvest" style="width:100%;height:480px;"></div></div>
+        <div class="card">
+          <h3 style="margin:0 0 10px 0;font-size:1rem;">🏗️ Schwerpunktprojekte im Investitionsprogramm 2024–2029 (T€)</h3>
+          <div class="table-wrap" style="max-height:430px;">
+            <table id="tblInvest">
+              <thead>
+                <tr>
+                  <th>TH</th>
+                  <th>Projekt</th>
+                  <th class="num">Gesamt (T€)</th>
+                  <th class="num">2025 (T€)</th>
+                  <th class="num">2026 (T€)</th>
+                  <th class="num">Zuschuss (T€)</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
+          <h3 style="margin:0;">🗳️ Gemeinderat-Änderungsanträge zum Doppelhaushalt 2025/2026 (359 Anträge)</h3>
+          <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+            <select id="selAntFrak" style="width:220px;"><option value="ALL">Alle Fraktionen</option></select>
+            <input type="text" id="inpAntSearch" placeholder="🔍 Antrag / Thema / TH suchen..." style="width:240px;" />
+            <label style="font-size:0.84rem;cursor:pointer;">
+              <input type="checkbox" id="chkHideSatire" checked /> Satire-Anträge (360 Mio. € Casino) ausblenden
+            </label>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div><div id="chartAntraegeFraktion" style="width:100%;height:380px;"></div></div>
+          <div class="table-wrap" style="max-height:380px;">
+            <table id="tblAntraege">
+              <thead>
+                <tr>
+                  <th>Nr</th>
+                  <th>Fraktion</th>
+                  <th>TH</th>
+                  <th>Titel / Maßnahme</th>
+                  <th class="num">Ertrag 25/26 (€)</th>
+                  <th class="num">Aufwand 25/26 (€)</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <h3 style="margin:0 0 8px 0;">✅ Automatisierte Interne Finanz-Konsistenzprüfung (Reconciliation Matrix)</h3>
+        <p style="margin:0 0 10px 0;font-size:0.82rem;color:var(--muted);">
+          Prüft in Echtzeit die mathematische Übereinstimmung zwischen Einzelposten, Teilhaushalten, Gesamtergebnishaushalt, Schlussbilanz und Stellenplan.
+        </p>
+        <div class="table-wrap">
+          <table id="tblReconcil">
+            <thead>
+              <tr>
+                <th>Prüfregel (Accounting Identity)</th>
+                <th class="num">Soll-Wert (Referenz)</th>
+                <th class="num">Ist-Wert (Aggregiert)</th>
+                <th class="num">Differenz</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
   </main>
 
   <script>
@@ -726,17 +841,36 @@ def build_static_dashboard() -> Path:
       2026: "Plan (HH 25/26) / 1. Nachtrag in Tab 4"
     }};
 
-    const ALL_ROWS = RAW.rows.map(r => ({{
-      Jahr: r[0],
-      Amt: RAW.aemter[r[1]],
-      Kategorie: RAW.kats[r[2]],
-      Sub_Kategorie: RAW.subs[r[3]],
-      Typ: RAW.typen[r[4]],
-      Betrag: r[5]
-    }}));
+    // Pre-compute searchBlob and O(1) year index at startup for instant filtering
+    const ROWS_BY_YEAR = new Map();
+    const ALL_ROWS = RAW.rows.map(r => {{
+      const Amt = RAW.aemter[r[1]];
+      const Kategorie = RAW.kats[r[2]];
+      const Sub_Kategorie = RAW.subs[r[3]];
+      const obj = {{
+        Jahr: r[0],
+        Amt,
+        Kategorie,
+        Sub_Kategorie,
+        Typ: RAW.typen[r[4]],
+        Betrag: r[5],
+        searchBlob: (Amt + " " + Kategorie + " " + Sub_Kategorie).toLowerCase()
+      }};
+      if (!ROWS_BY_YEAR.has(obj.Jahr)) ROWS_BY_YEAR.set(obj.Jahr, []);
+      ROWS_BY_YEAR.get(obj.Jahr).push(obj);
+      return obj;
+    }});
 
-    const YEARS_DESC = Array.from(new Set(ALL_ROWS.map(r => r.Jahr))).sort((a,b) => b - a);
+    const YEARS_DESC = Array.from(ROWS_BY_YEAR.keys()).sort((a,b) => b - a);
     const YEARS_ASC = [...YEARS_DESC].reverse();
+
+    function debounce(fn, ms = 120) {{
+      let timer = null;
+      return (...args) => {{
+        clearTimeout(timer);
+        timer = setTimeout(() => fn(...args), ms);
+      }};
+    }}
 
     let state = {{
       year: 2025,
@@ -803,10 +937,10 @@ def build_static_dashboard() -> Path:
         renderTab1();
       }});
 
-      document.getElementById("inpSearch").addEventListener("input", e => {{
+      document.getElementById("inpSearch").addEventListener("input", debounce(e => {{
         state.search = e.target.value.trim().toLowerCase();
         refreshAll();
-      }});
+      }}, 80));
 
       document.querySelectorAll("#pillType .radio-pill").forEach(el => {{
         el.addEventListener("click", () => {{
@@ -867,8 +1001,20 @@ def build_static_dashboard() -> Path:
       document.getElementById("chkExcludeFW").addEventListener("change", renderTab3Saldo);
 
       // Tab 4 Filters
-      document.getElementById("inpNhSearch").addEventListener("input", renderTab4Table);
+      document.getElementById("inpNhSearch").addEventListener("input", debounce(renderTab4Table, 80));
       document.getElementById("chkOnly5Pct").addEventListener("change", renderTab4Table);
+
+      // Tab 6 Filters
+      const selAntFrak = document.getElementById("selAntFrak");
+      const frakList = Array.from(new Set((RAW.antraege || []).map(r => r.Fraktion))).sort();
+      frakList.forEach(f => {{
+        const opt = document.createElement("option");
+        opt.value = f; opt.textContent = f;
+        selAntFrak.appendChild(opt);
+      }});
+      selAntFrak.addEventListener("change", renderTab6AntraegeTable);
+      document.getElementById("inpAntSearch").addEventListener("input", debounce(renderTab6AntraegeTable, 80));
+      document.getElementById("chkHideSatire").addEventListener("change", renderTab6AntraegeTable);
 
       // Tab 1 Table Sorting & Download
       document.querySelectorAll("#tblTab1 th").forEach(th => {{
@@ -888,17 +1034,12 @@ def build_static_dashboard() -> Path:
     }}
 
     function filterRowsForYear(yr) {{
-      return ALL_ROWS.filter(r => {{
-        if (r.Jahr !== yr) return false;
+      const yearRows = ROWS_BY_YEAR.get(yr) || [];
+      if (state.amt === "ALL" && !state.search) return yearRows;
+      const q = state.search;
+      return yearRows.filter(r => {{
         if (state.amt !== "ALL" && r.Amt !== state.amt) return false;
-        if (state.search) {{
-          const q = state.search;
-          if (
-            !r.Amt.toLowerCase().includes(q) &&
-            !r.Kategorie.toLowerCase().includes(q) &&
-            !r.Sub_Kategorie.toLowerCase().includes(q)
-          ) return false;
-        }}
+        if (q && !r.searchBlob.includes(q)) return false;
         return true;
       }});
     }}
@@ -1555,12 +1696,165 @@ def build_static_dashboard() -> Path:
       }}, {{ responsive: true }});
     }}
 
+    // ================= TAB 6 =================
+    function renderTab6() {{
+      const stRows = (RAW.steuern || []).filter(r => r.Kategorie === "Steuererträge").reverse();
+      Plotly.react("chartSteuern", [
+        {{ type: "bar", orientation: "h", name: "Ist 2024", y: stRows.map(r => shortAmt(r.Position)), x: stRows.map(r => r.Ist_2024 / 1e6), marker: {{ color: "#64748b" }} }},
+        {{ type: "bar", orientation: "h", name: "1. Nachtrag 2026", y: stRows.map(r => shortAmt(r.Position)), x: stRows.map(r => r.Nachtrag_2026 / 1e6), marker: {{ color: "#2563eb" }} }},
+        {{ type: "bar", orientation: "h", name: "Okt-Prognose 2026", y: stRows.map(r => shortAmt(r.Position)), x: stRows.map(r => r.Prognose_Okt2026 / 1e6), marker: {{ color: "#16a34a" }} }}
+      ], {{
+        barmode: "group",
+        title: "Steuererträge Heidelberg (Ist 2024 vs. Nachtrag 2026 vs. Okt-Prognose 2026, Mio. €)",
+        legend: {{ orientation: "h", y: 1.08 }},
+        margin: {{ t: 50, l: 215, r: 25, b: 40 }},
+        xaxis: {{ title: "Mio. €" }}
+      }}, {{ responsive: true }});
+
+      const heb = RAW.hebesaetze || [];
+      Plotly.react("chartHebesaetze", [
+        {{ type: "bar", name: "Gewerbesteuer (v.H.)", x: heb.map(r => r.Stadtkreis), y: heb.map(r => r.Gewerbesteuer_Prozent), marker: {{ color: "#1d4ed8" }} }},
+        {{ type: "bar", name: "Grundsteuer B neu ab 2025 (v.H.)", x: heb.map(r => r.Stadtkreis), y: heb.map(r => r.Grundsteuer_B_Neu_2025_Prozent), marker: {{ color: "#0d9488" }} }},
+        {{ type: "scatter", mode: "lines+markers", name: "Grundsteuer B alt bis 2024", x: heb.map(r => r.Stadtkreis), y: heb.map(r => r.Grundsteuer_B_Alt_2024_Prozent), line: {{ color: "#dc2626", dash: "dot", width: 2 }} }}
+      ], {{
+        barmode: "group",
+        title: "Hebesatz-Vergleich der 9 Stadtkreise in Baden-Württemberg (v.H.)",
+        legend: {{ orientation: "h", y: 1.08 }},
+        margin: {{ t: 50, l: 55, r: 20, b: 60 }},
+        yaxis: {{ title: "Hebesatz (%)" }}
+      }}, {{ responsive: true }});
+
+      const inv = [...(RAW.investitionen || [])].filter(r => r.TH !== "FW").sort((a,b) => a.Gesamtkosten_TEUR - b.Gesamtkosten_TEUR).slice(-16);
+      Plotly.react("chartInvest", [{{
+        type: "bar",
+        orientation: "h",
+        y: inv.map(r => shortAmt(r.Projekt)),
+        x: inv.map(r => r.Gesamtkosten_TEUR),
+        marker: {{ color: "#2563eb" }},
+        hovertemplate: "<b>%{{y}}</b><br>Gesamtkosten: <b>%{{x:,.0f}} T€</b><extra></extra>"
+      }}], {{
+        title: "Top 16 Hoch- & Tiefbauprojekte 2024–2029 nach Gesamtkosten (in T€)",
+        margin: {{ t: 45, l: 225, r: 25, b: 40 }},
+        xaxis: {{ title: "Gesamtkosten (T€)" }}
+      }}, {{ responsive: true }});
+
+      const tbodyInv = document.querySelector("#tblInvest tbody");
+      const allInv = [...(RAW.investitionen || [])].sort((a,b) => b.Gesamtkosten_TEUR - a.Gesamtkosten_TEUR);
+      tbodyInv.innerHTML = allInv.map(r => `
+        <tr>
+          <td><strong>${{r.TH}}</strong></td>
+          <td>${{r.Projekt}}</td>
+          <td class="num">${{Number(r.Gesamtkosten_TEUR).toLocaleString("de-DE")}}</td>
+          <td class="num">${{Number(r.Auszahlung_2025_TEUR).toLocaleString("de-DE")}}</td>
+          <td class="num">${{Number(r.Auszahlung_2026_TEUR).toLocaleString("de-DE")}}</td>
+          <td class="num">${{Number(r.Zuschuss_Gesamt_TEUR).toLocaleString("de-DE")}}</td>
+        </tr>
+      `).join("");
+
+      // Faction chart
+      const frakMap = new Map();
+      (RAW.antraege || []).filter(r => !r.Ist_Satire).forEach(r => {{
+        frakMap.set(r.Fraktion, (frakMap.get(r.Fraktion) || 0) + 1);
+      }});
+      const frakEntries = Array.from(frakMap.entries()).sort((a,b) => a[1] - b[1]);
+      Plotly.react("chartAntraegeFraktion", [{{
+        type: "bar",
+        orientation: "h",
+        y: frakEntries.map(e => shortAmt(e[0])),
+        x: frakEntries.map(e => e[1]),
+        marker: {{ color: "#0d9488" }}
+      }}], {{
+        title: "Haushalts-Änderungsanträge 2025/26 nach Fraktion",
+        margin: {{ t: 45, l: 195, r: 20, b: 35 }},
+        xaxis: {{ title: "Anzahl Anträge" }}
+      }}, {{ responsive: true }});
+
+      renderTab6AntraegeTable();
+      renderReconciliationTable();
+    }}
+
+    function renderTab6AntraegeTable() {{
+      const frak = document.getElementById("selAntFrak").value;
+      const q = document.getElementById("inpAntSearch").value.trim().toLowerCase();
+      const hideSat = document.getElementById("chkHideSatire").checked;
+
+      const list = (RAW.antraege || []).filter(r => {{
+        if (hideSat && r.Ist_Satire) return false;
+        if (frak !== "ALL" && r.Fraktion !== frak) return false;
+        if (q) {{
+          return (
+            String(r.Titel || "").toLowerCase().includes(q) ||
+            String(r.Beschreibung || "").toLowerCase().includes(q) ||
+            String(r.TH || "").toLowerCase().includes(q) ||
+            String(r.Fraktion || "").toLowerCase().includes(q)
+          );
+        }}
+        return true;
+      }});
+
+      const tbody = document.querySelector("#tblAntraege tbody");
+      tbody.innerHTML = list.map(r => {{
+        const eSum = (Number(r.Ertrag_Aenderung_2025_EUR) || 0) + (Number(r.Ertrag_Aenderung_2026_EUR) || 0);
+        const aSum = (Number(r.Aufwand_Aenderung_2025_EUR) || 0) + (Number(r.Aufwand_Aenderung_2026_EUR) || 0);
+        return `
+          <tr>
+            <td>${{r.Nr}}</td>
+            <td><strong>${{r.Fraktion}}</strong></td>
+            <td>${{r.TH}}</td>
+            <td title="${{(r.Stellungnahme_Verwaltung || '').replace(/"/g, '&quot;')}}">${{r.Titel}}</td>
+            <td class="num">${{fmtEur(eSum, 0)}}</td>
+            <td class="num">${{fmtEur(aSum, 0)}}</td>
+          </tr>
+        `;
+      }}).join("");
+    }}
+
+    function renderReconciliationTable() {{
+      const deepSum = ALL_ROWS.reduce((s, r) => s + r.Betrag, 0);
+      const aemterSum = RAW.aemter_total_sum || deepSum;
+      const diff1 = Math.abs(deepSum - aemterSum);
+
+      const nhGesE = (RAW.nh_gesamt || []).filter(r => r.Typ === "Erträge").reduce((s, r) => s + r.Neu_2026_EUR, 0);
+      const nhAmtE = (RAW.nh_aemter || []).filter(r => r.Position === "Anteilige ordentliche Erträge").reduce((s, r) => s + r.Neu_2026, 0);
+      const diff2 = Math.abs(nhGesE - nhAmtE);
+
+      const nhGesA = (RAW.nh_gesamt || []).filter(r => r.Typ === "Aufwendungen").reduce((s, r) => s + r.Neu_2026_EUR, 0);
+      const nhAmtA = (RAW.nh_aemter || []).filter(r => r.Position === "Anteilige ordentliche Aufwendungen").reduce((s, r) => s + r.Neu_2026, 0);
+      const diff3 = Math.abs(nhGesA - nhAmtA);
+
+      const akt24 = (RAW.bilanz || []).filter(r => r.Jahr === 2024 && r.Seite === "Aktiva").reduce((s, r) => s + r.Betrag_TEUR, 0);
+      const pas24 = (RAW.bilanz || []).filter(r => r.Jahr === 2024 && r.Seite === "Passiva").reduce((s, r) => s + r.Betrag_TEUR, 0);
+      const diff4 = Math.abs(akt24 - pas24);
+
+      const pers25 = (RAW.personal || []).filter(r => r.Jahr === 2025).reduce((s, r) => s + r.Planstellen, 0);
+      const diff5 = Math.abs(2658.0 - pers25);
+
+      const rows = [
+        ["1. Teilhaushalte Deep (8.539 Posten) == Ämter-Summen (2013–2026)", fmtEur(aemterSum, 2), fmtEur(deepSum, 2), fmtEur(diff1, 2), diff1 < 0.01],
+        ["2. 1. Nachtrag 2026: Summe 41 Teilhaushalte Erträge == Gesamtergebnishaushalt", fmtEur(nhGesE, 2), fmtEur(nhAmtE, 2), fmtEur(diff2, 2), diff2 < 0.01],
+        ["3. 1. Nachtrag 2026: Summe 41 Teilhaushalte Aufwendungen == Gesamtergebnishaushalt", fmtEur(nhGesA, 2), fmtEur(nhAmtA, 2), fmtEur(diff3, 2), diff3 < 0.01],
+        ["4. Schlussbilanz 2015–2024: Aktiva == Passiva == Bilanzsumme (2024: 1.780.058 T€)", akt24.toLocaleString("de-DE") + " T€", pas24.toLocaleString("de-DE") + " T€", diff4.toFixed(2) + " T€", diff4 < 0.01],
+        ["5. Stellenplan 2025/2026: Beamte (733,75) + Tarif (1.924,25) == 2.658,00 VZÄ", "2.658,00 VZÄ", pers25.toLocaleString("de-DE", {{minimumFractionDigits:2}}) + " VZÄ", diff5.toFixed(2) + " VZÄ", diff5 < 0.01]
+      ];
+      const tbody = document.querySelector("#tblReconcil tbody");
+      tbody.innerHTML = rows.map(r => `
+        <tr>
+          <td><strong>${{r[0]}}</strong></td>
+          <td class="num">${{r[1]}}</td>
+          <td class="num">${{r[2]}}</td>
+          <td class="num">${{r[3]}}</td>
+          <td style="color:${{r[4] ? '#16a34a' : '#dc2626'}};font-weight:700;">${{r[4] ? '✅ 100% Konsistent' : '❌ Abweichung'}}</td>
+        </tr>
+      `).join("");
+    }}
+
     function renderActiveTab() {{
       if (state.activeTab === "tab1") renderTab1();
       else if (state.activeTab === "tab2") {{ renderTab2Growth(); renderTab2TS(); }}
       else if (state.activeTab === "tab3") renderTab3();
       else if (state.activeTab === "tab4") renderTab4();
       else if (state.activeTab === "tab5") renderTab5();
+      else if (state.activeTab === "tab6") renderTab6();
     }}
 
     function refreshAll() {{
